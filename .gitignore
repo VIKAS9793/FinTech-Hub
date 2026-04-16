@@ -1,0 +1,12 @@
+node_modules/
+.env
+*.log
+.DS_Store
+.idea/
+.vscode/
+dist/
+build/
+.gemini/
+.antigravity/
+.system_generated/
+.history/

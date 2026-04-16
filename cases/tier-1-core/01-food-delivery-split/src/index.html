@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinTech Hub: Fund Routing Action Demo</title>
+    <!-- Use Google Outfit for Material 3 Expressive Look -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* M3 Expressive Tonal Palette */
+            --md-sys-color-primary: #0060A9;
+            --md-sys-color-on-primary: #FFFFFF;
+            --md-sys-color-primary-container: #D3E4FF;
+            --md-sys-color-on-primary-container: #001C38;
+            --md-sys-color-secondary-container: #CCE5FF;
+            --md-sys-color-error: #BA1A1A;
+            --md-sys-color-error-container: #FFDAD6;
+            --md-sys-color-on-error-container: #410002;
+            --md-sys-color-surface: #FDFBFF;
+            --md-sys-color-surface-variant: #DFE2EB;
+            --md-sys-color-on-surface: #1A1C1E;
+            --md-sys-color-outline: #73777F;
+            --md-sys-color-success-container: #C4EED0;
+            --md-sys-color-on-success-container: #072711;
+            
+            --terminal-bg: #1A1C1E;
+            --terminal-text: #E3E2E6;
+            --terminal-accent: #AEC6FF;
+            --terminal-success: #C4EED0;
+            --terminal-error: #FFB4AB;
+            --terminal-warning: #FFDDb3;
+
+            /* M3 Expressive Shapes */
+            --shape-large: 24px;
+            --shape-medium: 16px;
+            --shape-small: 12px;
+            --shape-button: 100px; /* fully rounded */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--md-sys-color-surface);
+            color: var(--md-sys-color-on-surface);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 10px 24px;
+            background: var(--md-sys-color-surface);
+            color: var(--md-sys-color-on-surface);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--md-sys-color-surface-variant);
+            z-index: 10;
+        }
+
+        h1 { 
+            font-size: 1.1rem; 
+            font-weight: 600; 
+            letter-spacing: -0.02em;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            padding: 16px;
+            gap: 16px;
+            background: #f4f6fa;
+        }
+
+        /* LEFT PANE - UI VIEW */
+        .pane-ui {
+            flex: 1.1;
+            padding: 20px;
+            background: var(--md-sys-color-surface);
+            border-radius: var(--shape-large);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: hidden;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            background: var(--md-sys-color-surface-variant);
+            padding: 8px;
+            border-radius: var(--shape-button);
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--shape-button);
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+            background: transparent;
+            color: var(--md-sys-color-on-surface);
+            flex: 1;
+        }
+
+        button:hover { 
+            background: rgba(255,255,255,0.5);
+        }
+
+        button.primary { 
+            background: var(--md-sys-color-primary); 
+            color: white; 
+        }
+        
+        button.primary:hover {
+            background: #004f8c;
+            transform: translateY(-1px);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .card {
+            background: var(--md-sys-color-surface);
+            padding: 16px;
+            border-radius: var(--shape-medium);
+            border: 1px solid var(--md-sys-color-surface-variant);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            justify-content: center;
+            align-items: flex-start;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .card-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--md-sys-color-outline);
+            font-weight: 600;
+        }
+
+        .amount {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--md-sys-color-on-surface);
+            letter-spacing: -0.02em;
+        }
+        
+        .amount.negative { color: var(--md-sys-color-error); }
+        .amount.zero { color: var(--md-sys-color-outline); opacity: 0.7; }
+
+        .full-width { grid-column: 1 / -1; }
+
+        .escrow-vault {
+            background: var(--md-sys-color-primary-container);
+            border: none;
+        }
+
+        .escrow-vault .card-header { color: var(--md-sys-color-on-primary-container); opacity: 0.8; }
+        .escrow-vault .amount { color: var(--md-sys-color-on-primary-container); }
+        
+        .reserve-card {
+            background: #fff8eb;
+            border: 1px solid #ffecc7;
+        }
+        .reserve-card .amount { color: #8a6400; }
+        .reserve-card .card-header { color: #bca05b; }
+
+        .user-card {
+            background: var(--md-sys-color-secondary-container);
+            border: none;
+        }
+
+        /* RIGHT PANE - TERMINAL */
+        .pane-terminal {
+            flex: 0.9;
+            background: var(--terminal-bg);
+            color: var(--terminal-text);
+            padding: 24px;
+            border-radius: var(--shape-large);
+            overflow-y: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .terminal-header {
+            color: var(--terminal-accent);
+            opacity: 0.7;
+            margin-bottom: 12px;
+            border-bottom: 1px dashed rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+            text-transform: uppercase;
+            font-weight: bold;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+        }
+
+        .log-line { margin-bottom: 6px; line-height: 1.4; word-wrap: break-word; }
+        .log-time { color: #555; margin-right: 8px; }
+        .log-info { color: var(--terminal-text); }
+        .log-api { color: var(--terminal-accent); font-weight: bold; }
+        .log-success { color: var(--terminal-success); font-weight: bold; }
+        .log-error { color: var(--terminal-error); font-weight: bold; }
+        .log-warn { color: var(--terminal-warning); font-weight: bold; }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); background: var(--md-sys-color-surface-variant); }
+            100% { transform: scale(1); }
+        }
+        .anim-change { animation: pulse 0.5s ease-out; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Fund Routing Architecture</h1>
+        <span style="font-size: 0.8rem; font-weight: 500; color: var(--md-sys-color-primary);">Escrow & Offsetting Live Demo</span>
+    </header>
+
+    <div class="container">
+        <!-- LEFT: VISUALIZATION -->
+        <div class="pane-ui">
+            <div class="controls">
+                <button class="primary" onclick="runScenario('happy')">Happy Path</button>
+                <button onclick="runScenario('sadA')">Sad Path A (Pre-Sett.)</button>
+                <button onclick="runScenario('sadB')">Sad Path B (Post-Sett.)</button>
+                <button onclick="resetUI()" style="flex: 0.3; color: var(--md-sys-color-error);">Reset</button>
+            </div>
+
+            <div class="dashboard">
+                <div class="card full-width escrow-vault">
+                    <div class="card-header">Nodal Escrow Account</div>
+                    <div class="amount" id="amt-escrow">₹0</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Restaurant Payout</div>
+                    <div class="amount zero" id="amt-rest">₹0</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">Delivery Payout</div>
+                    <div class="amount zero" id="amt-driver">₹0</div>
+                </div>
+
+                <div class="card user-card">
+                    <div class="card-header">User Wallet / Refund</div>
+                    <div class="amount zero" id="amt-user">₹0</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Platform Fee + Tax</div>
+                    <div class="amount zero" id="amt-plat">₹0</div>
+                </div>
+                
+                <div class="card full-width reserve-card">
+                    <div class="card-header">Platform Refund Reserve (Nodal Buffer)</div>
+                    <div class="amount" id="amt-reserve">₹50,000,000</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: TERMINAL -->
+        <div class="pane-terminal" id="terminal">
+            <div class="terminal-header">Backend Ledger Output</div>
+        </div>
+    </div>
+
+    <script>
+        const formatMoney = (val) => val === 0 ? "₹0" : (val > 0 ? `₹${val.toLocaleString()}` : `-₹${Math.abs(val).toLocaleString()}`);
+        
+        function updateUI(id, val) {
+            const el = document.getElementById(id);
+            el.innerText = formatMoney(val);
+            el.className = `amount ${val < 0 ? 'negative' : (val === 0 ? 'zero' : '')}`;
+            
+            const card = el.parentElement;
+            card.classList.remove('anim-change');
+            void card.offsetWidth; 
+            card.classList.add('anim-change');
+        }
+
+        const terminal = document.getElementById('terminal');
+        function logTerm(msg, type='info') {
+            const time = new Date().toISOString().split('T')[1].substring(0,8);
+            const line = document.createElement('div');
+            line.className = 'log-line';
+            line.innerHTML = `<span class="log-time">[${time}]</span> <span class="log-${type}">${msg}</span>`;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        let state = {
+            escrow: 0, rest: 0, driver: 0, plat: 0, user: 0, reserve: 50000000
+        };
+
+        function resetUI() {
+            state = { escrow: 0, rest: 0, driver: 0, plat: 0, user: 0, reserve: 50000000 };
+            ['escrow','rest','driver','plat','user','reserve'].forEach(k => updateUI(`amt-${k}`, state[k]));
+            terminal.innerHTML = '<div class="terminal-header">Backend Ledger Output</div>';
+        }
+
+        async function runScenario(type) {
+            resetUI();
+            
+            logTerm("--- START HAPPY PATH ---", "api");
+            logTerm("EVENT: User pays ₹1000", "info");
+            
+            logTerm("PAY-IN: POST /charges { amount: 1000 }", "api");
+            state.escrow += 1000; state.user -= 1000;
+            updateUI('amt-escrow', state.escrow); updateUI('amt-user', state.user);
+            await sleep(800);
+
+            logTerm("ROUTE: POST /transfers { Rest: 800, Driver: 100... }", "api");
+            state.rest += 800; state.driver += 100; state.plat += 100;
+            updateUI('amt-rest', state.rest); updateUI('amt-driver', state.driver); updateUI('amt-plat', state.plat);
+            logTerm("Funds allocated to sub-buckets.", "success");
+            await sleep(1000);
+
+            if(type === 'happy') {
+                logTerm("T+1 SETTLEMENT TRIGGERED.", "warn");
+                state.escrow = 0; updateUI('amt-escrow', state.escrow);
+                logTerm("Final funds wired. Done.", "success");
+                return;
+            }
+
+            if(type === 'sadA') {
+                logTerm("--- SAD PATH A: PRE-SETTLEMENT REFUND ---", "error");
+                await sleep(800);
+
+                logTerm("REVERSAL: POST /transfers/.../reversals { amount: 200 }", "api");
+                state.rest -= 200; updateUI('amt-rest', state.rest);
+                logTerm("Restaurant allocation reduced.", "success");
+                await sleep(1000);
+
+                logTerm("REFUND: POST /payments/.../refunds { amount: 200 }", "api");
+                state.escrow -= 200; state.user += 200;
+                updateUI('amt-escrow', state.escrow); updateUI('amt-user', state.user);
+                logTerm("User refunded. Partners protected.", "success");
+                return;
+            }
+
+            if(type === 'sadB') {
+                logTerm("T+1 SETTLEMENT TRIGGERED.", "warn");
+                state.escrow = 0; updateUI('amt-escrow', state.escrow);
+                logTerm("Escrow empty.", "warn");
+                await sleep(1500);
+
+                logTerm("--- SAD PATH B: POST-SETTLEMENT REFUND ---", "error");
+                await sleep(800);
+
+                logTerm("ATTEMPT REVERSAL...", "api"); await sleep(400);
+                logTerm("ERROR: INSUFFICIENT_ESCROW_BALANCE", "error");
+                await sleep(1000);
+
+                logTerm("FALLBACK: Utilizing Platform Refund Reserve.", "warn");
+                state.reserve -= 200; state.user += 200;
+                updateUI('amt-reserve', state.reserve); updateUI('amt-user', state.user);
+                logTerm("Refund instantly processed from Buffer.", "success");
+                await sleep(1200);
+
+                logTerm("LEDGER: Write Negative Balance for Rest.", "warn");
+                state.rest = -200; updateUI('amt-rest', state.rest);
+                logTerm("Awaiting Future Auto-Offset...", "info");
+                await sleep(2000);
+
+                logTerm("--- T+3: RESTAURANT OPENS ---", "api");
+                state.escrow += 500; updateUI('amt-escrow', state.escrow);
+                await sleep(800);
+
+                logTerm("RECOVERY: Ledger Engine intercepts debt.", "warn");
+                state.rest += 200; state.reserve += 200;
+                updateUI('amt-rest', state.rest); updateUI('amt-reserve', state.reserve);
+                logTerm("Debt cleared. Reserve replenished.", "success");
+            }
+        }
+    </script>
+</body>
+</html>

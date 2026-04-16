@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinTech Hub: Zero-Trust AI Reconciliation Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0060A9;
+      --on-primary: #FFFFFF;
+      --primary-container: #D3E4FF;
+      --secondary-container: #E0F0FF;
+      --surface: #FDFBFF;
+      --surface-variant: #E1E2EC;
+      --on-surface: #1A1C1E;
+      --outline: #74777F;
+      --error: #BA1A1A;
+      --error-container: #FFDAD6;
+      --success-container: #C4EED0;
+      --on-success: #072711;
+      --warning: #7A5700;
+      --warning-container: #FFDDB3;
+      --shape-xl: 28px;
+      --shape-l: 20px;
+      --shape-m: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-font-smoothing: antialiased; }
+    body { background: #f0f2f7; display: flex; flex-direction: column; height: 100vh; overflow: hidden; color: var(--on-surface); }
+
+    header {
+      padding: 10px 24px;
+      background: var(--surface);
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--surface-variant);
+    }
+    h1 { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.02em; }
+    .main { display: flex; flex: 1; gap: 16px; padding: 16px; overflow: hidden; }
+
+    /* LEFT PANE */
+    .pane-ui { flex: 1.15; background: var(--surface); border-radius: var(--shape-xl); padding: 20px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.04); }
+
+    .controls { display: flex; gap: 8px; background: var(--surface-variant); padding: 8px; border-radius: 100px; }
+    button { flex: 1; padding: 8px 14px; border: none; border-radius: 100px; font-size: 0.82rem; font-weight: 500; cursor: pointer; background: transparent; color: var(--on-surface); transition: all 0.2s; }
+    button.active-btn { background: var(--primary); color: white; }
+    button:hover:not(.active-btn) { background: rgba(0,96,169,0.08); }
+    button.reset-btn { flex: 0.3; color: var(--error); }
+
+    /* TIMELINE */
+    .timeline { display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 0; overflow-y: auto; scroll-behavior: smooth; padding-right: 4px; }
+    .timeline::-webkit-scrollbar { width: 4px; }
+    .timeline::-webkit-scrollbar-track { background: transparent; }
+    .timeline::-webkit-scrollbar-thumb { background: var(--surface-variant); border-radius: 4px; }
+    .step {
+      background: var(--surface);
+      border: 1.5px solid var(--surface-variant);
+      border-radius: var(--shape-l);
+      padding: 12px 16px;
+      display: flex; align-items: center; gap: 14px;
+      transition: all 0.4s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .step-icon {
+      width: 40px; height: 40px; border-radius: 14px;
+      background: var(--surface-variant);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .step-content { flex: 1; }
+    .step-title { font-size: 0.9rem; font-weight: 600; }
+    .step-sub { font-size: 0.78rem; color: var(--outline); margin-top: 2px; }
+    .step-badge {
+      font-size: 0.7rem; font-weight: 600; padding: 4px 10px; border-radius: 100px;
+      background: var(--surface-variant); color: var(--outline);
+      transition: all 0.3s;
+    }
+
+    /* States */
+    .step.success { border-color: #a6d7b3; background: var(--success-container); }
+    .step.success .step-icon { background: #72c38a; }
+    .step.success .step-badge { background: #72c38a; color: #072711; }
+    .step.error { border-color: #f5b5b0; background: var(--error-container); }
+    .step.error .step-icon { background: #f5b5b0; }
+    .step.error .step-badge { background: var(--error); color: white; }
+    .step.warn { border-color: #ffd97a; background: var(--warning-container); }
+    .step.warn .step-icon { background: #ffd97a; }
+    .step.warn .step-badge { background: var(--warning); color: white; }
+    .step.active-step { border-color: var(--primary); background: var(--primary-container); }
+    .step.active-step .step-icon { background: var(--primary); }
+    .step.active-step .step-badge { background: var(--primary); color: white; }
+
+    /* Alert Box */
+    .alert-box {
+      border-radius: var(--shape-m); padding: 12px 16px; font-size: 0.83rem; line-height: 1.5;
+      background: var(--surface-variant); color: var(--outline);
+      transition: all 0.4s;
+      flex-shrink: 0;
+    }
+    .alert-box.show-success { background: var(--success-container); color: var(--on-success); }
+    .alert-box.show-error { background: var(--error-container); color: var(--error); }
+    .alert-box.show-warn { background: var(--warning-container); color: var(--warning); }
+
+    /* RIGHT PANE — TERMINAL */
+    .pane-terminal {
+      flex: 0.85; background: #1A1C1E; color: #E3E2E6;
+      border-radius: var(--shape-xl); padding: 20px;
+      font-family: 'Consolas', monospace; font-size: 0.82rem;
+      overflow-y: auto; display: flex; flex-direction: column;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+    }
+    .term-hdr { color: #AEC6FF; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.1); margin-bottom: 10px; }
+    .log-line { margin-bottom: 5px; line-height: 1.4; word-break: break-all; }
+    .lt { color: #444; margin-right: 8px; }
+    .li { color: #E3E2E6; }
+    .la { color: #AEC6FF; font-weight: 600; }
+    .ls { color: #C4EED0; font-weight: 600; }
+    .le { color: #FFB4AB; font-weight: 600; }
+    .lw { color: #FFD080; font-weight: 600; }
+    .lp { color: #E1E2EC; font-style: italic; opacity: 0.8; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>BBPS Reconciliation — Zero-Trust AI Agent</h1>
+  <span style="font-size:0.8rem;font-weight:500;color:var(--primary)">Layer 3 Executioner · SFTP Asynchronous Batch Hold</span>
+</header>
+<div class="main">
+
+  <!-- LEFT PANE -->
+  <div class="pane-ui">
+    <div class="controls">
+      <button class="active-btn" onclick="run('happy')">Happy Path: Sync Clear</button>
+      <button onclick="run('sad')">Timeout Path: SFTP Batch Hold</button>
+      <button class="reset-btn" onclick="reset()">Reset</button>
+    </div>
+
+    <div class="timeline">
+      <div class="step" id="s1">
+        <div class="step-icon">🔌</div>
+        <div class="step-content">
+          <div class="step-title">1. Payment Initiation (BBPS)</div>
+          <div class="step-sub">User pays ₹10,000 Electric Bill · NPCI Webhook received</div>
+        </div>
+        <div class="step-badge" id="b1">Waiting</div>
+      </div>
+      <div class="step" id="s2">
+        <div class="step-icon">🎭</div>
+        <div class="step-content">
+          <div class="step-title">LAYER 1: DPDP Privacy Masking</div>
+          <div class="step-sub">Intercept. Redact PII (Name, Acc#). Generate Hash.</div>
+        </div>
+        <div class="step-badge" id="b2">Waiting</div>
+      </div>
+      <div class="step" id="s3">
+        <div class="step-icon">🌐</div>
+        <div class="step-content">
+          <div class="step-title">Biller Real-Time API</div>
+          <div class="step-sub">Attempting POST /verify_payment to Legacy Board</div>
+        </div>
+        <div class="step-badge" id="b3">Waiting</div>
+      </div>
+      <div class="step" id="s4">
+        <div class="step-icon">🧠</div>
+        <div class="step-content">
+          <div class="step-title">LAYER 2: LLM Brain Evaluation</div>
+          <div class="step-sub">Parsing Biller Logs & Webhooks -> Generating JSON action</div>
+        </div>
+        <div class="step-badge" id="b4">Waiting</div>
+      </div>
+      <div class="step" id="s5">
+        <div class="step-icon">⚖️</div>
+        <div class="step-content">
+          <div class="step-title">LAYER 3: The Executioner</div>
+          <div class="step-sub">Checking Deterministic Rules against the AI Output</div>
+        </div>
+        <div class="step-badge" id="b5">Waiting</div>
+      </div>
+      
+      <!-- Async Steps -->
+      <div class="step" id="s6" style="display:none">
+        <div class="step-icon">⏱️</div>
+        <div class="step-content">
+          <div class="step-title">T+1 Time Skip: 2:00 AM</div>
+          <div class="step-sub">Holding funds in Suspense Ledger awaiting batch sync</div>
+        </div>
+        <div class="step-badge" id="b6">Pending</div>
+      </div>
+      <div class="step" id="s7" style="display:none">
+        <div class="step-icon">📂</div>
+        <div class="step-content">
+          <div class="step-title">Ingesting SFTP Recon File</div>
+          <div class="step-sub">Biller offline batch job EOD report arrived via secure pipe</div>
+        </div>
+        <div class="step-badge" id="b7">Pending</div>
+      </div>
+      <div class="step" id="s8" style="display:none">
+        <div class="step-icon">✅</div>
+        <div class="step-content">
+          <div class="step-title">Final Reconciliation Verdict</div>
+          <div class="step-sub">LLM Reparses CSV. Executioner fires Final Settlement.</div>
+        </div>
+        <div class="step-badge" id="b8">Pending</div>
+      </div>
+    </div>
+
+    <div class="alert-box" id="alert">Awaiting scenario selection...</div>
+  </div>
+
+  <!-- RIGHT PANE — TERMINAL -->
+  <div class="pane-terminal" id="terminal">
+    <div class="term-hdr">BOU Central Ledger · Agent Logs</div>
+  </div>
+</div>
+
+<script>
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const $ = id => document.getElementById(id);
+
+function scrollTimelineBottom() {
+  const tl = document.querySelector('.timeline');
+  if (tl) setTimeout(() => { tl.scrollTop = tl.scrollHeight; }, 80);
+}
+
+window.termLog = function(msg, type='info') {
+  const time = new Date().toISOString().split('T')[1].slice(0,8);
+  const cls = {info:'li', api:'la', success:'ls', error:'le', warn:'lw', prompt: 'lp'}[type] || 'li';
+  const el = document.createElement('div');
+  el.className = 'log-line';
+  el.innerHTML = `<span class="lt">[${time}]</span><span class="${cls}">${msg}</span>`;
+  $('terminal').appendChild(el);
+  $('terminal').scrollTop = $('terminal').scrollHeight;
+};
+
+function setState(step, state, badge) {
+  const el = $(step);
+  el.className = `step ${state}`;
+  $(badge).textContent = { success:'✓ Done', error:'✗ Failed', warn:'⚠ Held', 'active-step':'Running...' }[state] || state;
+}
+
+function reset() {
+  for(let i=1;i<=8;i++) {
+    const s=$(`s${i}`); if(!s) continue;
+    s.className = 'step';
+    if(i>5) s.style.display='none';
+    $(`b${i}`).textContent = i > 5 ? 'Pending' : 'Waiting';
+  }
+  $('alert').className='alert-box'; $('alert').textContent='Awaiting scenario selection...';
+  $('terminal').innerHTML='<div class="term-hdr">BOU Central Ledger · Agent Logs</div>';
+}
+
+async function run(type) {
+  reset();
+
+  // S1: NPCI Webhook
+  setState('s1','active-step','b1'); scrollTimelineBottom();
+  termLog('NPCI: RECEIVE Webhook -> BBPS_PAY_INIT: ₹10,000','api'); await sleep(500);
+  termLog('BOU: Trans_ID: TXN-99812A | User: Rahul Sharma | Phone: 9876543210','info');
+  setState('s1','success','b1'); await sleep(500);
+
+  // S2: DPDP
+  setState('s2','active-step','b2'); scrollTimelineBottom();
+  termLog('LAYER 1: Executing DPDP data sanitation script.','warn'); await sleep(600);
+  termLog('PII Redacted -> { user: "hash:8f9a2b", phone: "hash:b1c9x" }','success');
+  setState('s2','success','b2'); await sleep(500);
+
+  // S3: Biller API
+  setState('s3','active-step','b3'); scrollTimelineBottom();
+  termLog('BOU: POST /verify_payment -> STATE_ELEC_BOARD_API','api'); await sleep(900);
+  
+  if(type === 'happy') {
+    termLog('STATE_ELEC_BOARD: 200 OK | Status: PAID','success');
+    setState('s3','success','b3'); await sleep(500);
+    
+    // S4: LLM
+    setState('s4','active-step','b4'); scrollTimelineBottom();
+    termLog('LAYER 2: Parsing log matrix -> Generating JSON...','api'); await sleep(800);
+    termLog('LLM Output: { "match_found": true, "suggested_action": "SETTLE", "score": 0.99 }','prompt');
+    setState('s4','success','b4'); await sleep(500);
+    
+    // S5: Executioner
+    setState('s5','active-step','b5'); scrollTimelineBottom();
+    termLog('LAYER 3: EXECUTIONER checking deterministic rules...','warn'); await sleep(600);
+    termLog('Rules Pass: score > 0.95 && API == 200. Triggering SETTLE.','success');
+    setState('s5','success','b5');
+    
+    $('alert').className='alert-box show-success';
+    $('alert').textContent='✓ Reconciliation Complete: API responded synchronously. Funds settled to Biller instantly.';
+    return;
+  }
+
+  // SAD PATH - TIMEOUT
+  termLog('STATE_ELEC_BOARD: 503 SERVICE UNAVAILABLE (Timeout)','error');
+  setState('s3','error','b3'); await sleep(600);
+
+  // S4: LLM Output on Failure
+  setState('s4','active-step','b4'); scrollTimelineBottom();
+  termLog('LAYER 2: LLM detects API failure over last 12 hours.','api'); await sleep(800);
+  termLog('LLM Output: { "match_found": false, "suggested_action": "REFUND_TO_USER", "score": 0.98 }','prompt');
+  setState('s4','success','b4'); await sleep(600);
+
+  // S5: Executioner Traps it
+  setState('s5','active-step','b5'); scrollTimelineBottom();
+  termLog('LAYER 3: EXECUTIONER checking deterministic rules...','warn'); await sleep(600);
+  termLog('RULE FAIL: Target Biller supports Offline Batch Sync!','error');
+  termLog('EXECUTIONER: Intercepting REFUND decision. Applying [PENDING_BATCH_RECON].','warn');
+  setState('s5','warn','b5'); await sleep(800);
+
+  // S6: Time Jump
+  $('s6').style.display='flex'; setState('s6','active-step','b6'); scrollTimelineBottom();
+  termLog('BOU SERVER: Holding funds in Suspense Ledger. Awaiting 2AM clock...','info'); await sleep(1200);
+  termLog('BOU SERVER: Time is now 02:00:00 IST','info');
+  setState('s6','success','b6'); await sleep(500);
+
+  // S7: SFTP
+  $('s7').style.display='flex'; setState('s7','active-step','b7'); scrollTimelineBottom();
+  termLog('SFTP NODE: Incoming file `SEB_EOD_20260415.csv` received.','success'); await sleep(800);
+  termLog('Extracting target row for partial ID TXN-998...','api');
+  setState('s7','success','b7'); await sleep(500);
+
+  // S8: Final Pass
+  $('s8').style.display='flex'; setState('s8','active-step','b8'); scrollTimelineBottom();
+  termLog('LAYER 2 (2nd Pass): LLM discovers offline payment success in CSV!','api'); await sleep(900);
+  termLog('LLM Output: { "suggested_action": "SETTLE", "batch_verified": true }','prompt');
+  termLog('LAYER 3 (2nd Pass): EXECUTIONER verifies batch flag. Firing SETTLE!','success');
+  setState('s8','success','b8');
+
+  $('alert').className='alert-box show-warn';
+  $('alert').textContent="⚠ Crisis Averted: The AI initially wanted to refund due to API death. The Executioner forced a safe hold until the asynchronous Batch file proved the payment was valid locally on the Biller's offline ledger. Platform saved ₹10,000.";
+}
+</script>
+</body>
+</html>

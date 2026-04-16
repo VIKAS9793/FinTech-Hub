@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinTech Hub: BNPL Checkout Saga Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0060A9;
+      --on-primary: #FFFFFF;
+      --primary-container: #D3E4FF;
+      --secondary-container: #E0F0FF;
+      --surface: #FDFBFF;
+      --surface-variant: #E1E2EC;
+      --on-surface: #1A1C1E;
+      --outline: #74777F;
+      --error: #BA1A1A;
+      --error-container: #FFDAD6;
+      --success-container: #C4EED0;
+      --on-success: #072711;
+      --warning: #7A5700;
+      --warning-container: #FFDDB3;
+      --shape-xl: 28px;
+      --shape-l: 20px;
+      --shape-m: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-font-smoothing: antialiased; }
+    body { background: #f0f2f7; display: flex; flex-direction: column; height: 100vh; overflow: hidden; color: var(--on-surface); }
+
+    header {
+      padding: 10px 24px;
+      background: var(--surface);
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--surface-variant);
+    }
+    h1 { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.02em; }
+    .main { display: flex; flex: 1; gap: 16px; padding: 16px; overflow: hidden; }
+
+    /* LEFT PANE */
+    .pane-ui { flex: 1.15; background: var(--surface); border-radius: var(--shape-xl); padding: 20px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.04); }
+
+    .controls { display: flex; gap: 8px; background: var(--surface-variant); padding: 8px; border-radius: 100px; }
+    button { flex: 1; padding: 8px 14px; border: none; border-radius: 100px; font-size: 0.82rem; font-weight: 500; cursor: pointer; background: transparent; color: var(--on-surface); transition: all 0.2s; }
+    button.active-btn { background: var(--primary); color: white; }
+    button:hover:not(.active-btn) { background: rgba(0,96,169,0.08); }
+    button.reset-btn { flex: 0.3; color: var(--error); }
+
+    /* TIMELINE */
+    .timeline { display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 0; overflow-y: auto; scroll-behavior: smooth; padding-right: 4px; }
+    .timeline::-webkit-scrollbar { width: 4px; }
+    .timeline::-webkit-scrollbar-track { background: transparent; }
+    .timeline::-webkit-scrollbar-thumb { background: var(--surface-variant); border-radius: 4px; }
+    .step {
+      background: var(--surface);
+      border: 1.5px solid var(--surface-variant);
+      border-radius: var(--shape-l);
+      padding: 12px 16px;
+      display: flex; align-items: center; gap: 14px;
+      transition: all 0.4s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .step-icon {
+      width: 40px; height: 40px; border-radius: 14px;
+      background: var(--surface-variant);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .step-content { flex: 1; }
+    .step-title { font-size: 0.9rem; font-weight: 600; }
+    .step-sub { font-size: 0.78rem; color: var(--outline); margin-top: 2px; }
+    .step-badge {
+      font-size: 0.7rem; font-weight: 600; padding: 4px 10px; border-radius: 100px;
+      background: var(--surface-variant); color: var(--outline);
+      transition: all 0.3s;
+    }
+
+    /* States */
+    .step.success { border-color: #a6d7b3; background: var(--success-container); }
+    .step.success .step-icon { background: #72c38a; }
+    .step.success .step-badge { background: #72c38a; color: #072711; }
+    .step.error { border-color: #f5b5b0; background: var(--error-container); }
+    .step.error .step-icon { background: #f5b5b0; }
+    .step.error .step-badge { background: var(--error); color: white; }
+    .step.warn { border-color: #ffd97a; background: var(--warning-container); }
+    .step.warn .step-icon { background: #ffd97a; }
+    .step.warn .step-badge { background: var(--warning); color: white; }
+    .step.active-step { border-color: var(--primary); background: var(--primary-container); }
+    .step.active-step .step-icon { background: var(--primary); }
+    .step.active-step .step-badge { background: var(--primary); color: white; }
+
+    .alert-box {
+      border-radius: var(--shape-m); padding: 12px 16px; font-size: 0.83rem; line-height: 1.5;
+      background: var(--surface-variant); color: var(--outline);
+      transition: all 0.4s;
+      flex-shrink: 0;
+    }
+    .alert-box.show-success { background: var(--success-container); color: var(--on-success); }
+    .alert-box.show-error { background: var(--error-container); color: var(--error); }
+    .alt-actions { margin-top: 0; display: flex; gap: 8px; display: none; flex-shrink: 0; }
+    .alt-actions.visible { display: flex; }
+    .alt-btn { padding: 8px 16px; border-radius: 100px; border: 1.5px solid var(--primary); background: white; color: var(--primary); font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+
+    /* RIGHT PANE — TERMINAL */
+    .pane-terminal {
+      flex: 0.85; background: #1A1C1E; color: #E3E2E6;
+      border-radius: var(--shape-xl); padding: 20px;
+      font-family: 'Consolas', monospace; font-size: 0.82rem;
+      overflow-y: auto; display: flex; flex-direction: column;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+    }
+    .term-hdr { color: #AEC6FF; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.1); margin-bottom: 10px; }
+    .log-line { margin-bottom: 5px; line-height: 1.4; word-break: break-all; }
+    .lt { color: #444; margin-right: 8px; }
+    .li { color: #E3E2E6; }
+    .la { color: #AEC6FF; font-weight: 600; }
+    .ls { color: #C4EED0; font-weight: 600; }
+    .le { color: #FFB4AB; font-weight: 600; }
+    .lw { color: #FFD080; font-weight: 600; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>BNPL Checkout — Distributed Saga Demo</h1>
+  <span style="font-size:0.8rem;font-weight:500;color:var(--primary)">B2B Embedded Finance · Compensating Transactions</span>
+</header>
+<div class="main">
+
+  <!-- LEFT PANE -->
+  <div class="pane-ui">
+    <div class="controls">
+      <button class="active-btn" onclick="run('happy')">Happy Path (30s)</button>
+      <button onclick="run('sad')">Sad Path: Bank Outage</button>
+      <button class="reset-btn" onclick="reset()">Reset</button>
+    </div>
+
+    <div class="timeline">
+      <div class="step" id="s1">
+        <div class="step-icon">🔐</div>
+        <div class="step-content">
+          <div class="step-title">Step 1 — AA Consent & Data Fetch</div>
+          <div class="step-sub">Account Aggregator SDK · Consent Artefact · Bank Statement</div>
+        </div>
+        <div class="step-badge" id="b1">Waiting</div>
+      </div>
+      <div class="step" id="s2">
+        <div class="step-icon">🤖</div>
+        <div class="step-content">
+          <div class="step-title">Step 2 — AI Underwriting</div>
+          <div class="step-sub">NBFC LOS · Balance · Bounce Rate · Cash Flow</div>
+        </div>
+        <div class="step-badge" id="b2">Waiting</div>
+      </div>
+      <div class="step" id="s3">
+        <div class="step-icon">📱</div>
+        <div class="step-content">
+          <div class="step-title">Step 3 — UPI AutoPay Mandate</div>
+          <div class="step-sub">NPCI · UMRN Generated · ₹10,000/month mandate</div>
+        </div>
+        <div class="step-badge" id="b3">Waiting</div>
+      </div>
+      <div class="step" id="s4">
+        <div class="step-icon">🏦</div>
+        <div class="step-content">
+          <div class="step-title">Step 4 — NEFT Disbursal (DLG)</div>
+          <div class="step-sub">Sponsor Bank · ₹50,000 → Supplier Account</div>
+        </div>
+        <div class="step-badge" id="b4">Waiting</div>
+      </div>
+      <div class="step" id="s5" style="display:none">
+        <div class="step-icon">🔄</div>
+        <div class="step-content">
+          <div class="step-title">SAGA: Mandate Revocation (NPCI)</div>
+          <div class="step-sub">UMRN killed · AutoPay cancelled at Remitter Bank</div>
+        </div>
+        <div class="step-badge" id="b5">Pending</div>
+      </div>
+      <div class="step" id="s6" style="display:none">
+        <div class="step-icon">🗂️</div>
+        <div class="step-content">
+          <div class="step-title">SAGA: Consent Revocation (AA)</div>
+          <div class="step-sub">DPDP Purpose Limitation · Data pipe severed</div>
+        </div>
+        <div class="step-badge" id="b6">Pending</div>
+      </div>
+      <div class="step" id="s7" style="display:none">
+        <div class="step-icon">📒</div>
+        <div class="step-content">
+          <div class="step-title">SAGA: NBFC LOS Reconciliation</div>
+          <div class="step-sub">loan_cancelled_pre_disbursal · Ledger voided for audit</div>
+        </div>
+        <div class="step-badge" id="b7">Pending</div>
+      </div>
+    </div>
+
+    <div class="alert-box" id="alert">Awaiting scenario selection...</div>
+    <div class="alt-actions" id="alt-actions">
+      <button class="alt-btn">💳 Pay via Card</button>
+      <button class="alt-btn">⚡ Pay via UPI</button>
+    </div>
+  </div>
+
+  <!-- RIGHT PANE — TERMINAL -->
+  <div class="pane-terminal" id="terminal">
+    <div class="term-hdr">Saga Orchestrator · Backend Ledger</div>
+  </div>
+</div>
+
+<script>
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const $ = id => document.getElementById(id);
+
+function scrollTimelineBottom() {
+  const tl = document.querySelector('.timeline');
+  if (tl) setTimeout(() => { tl.scrollTop = tl.scrollHeight; }, 80);
+}
+
+window.termLog = function(msg, type='info') {
+  const time = new Date().toISOString().split('T')[1].slice(0,8);
+  const cls = {info:'li', api:'la', success:'ls', error:'le', warn:'lw'}[type] || 'li';
+  const el = document.createElement('div');
+  el.className = 'log-line';
+  el.innerHTML = `<span class="lt">[${time}]</span><span class="${cls}">${msg}</span>`;
+  $('terminal').appendChild(el);
+  $('terminal').scrollTop = $('terminal').scrollHeight;
+};
+
+function setState(step, state, badge) {
+  const el = $(step);
+  el.className = `step ${state}`;
+  $(badge).textContent = { success:'✓ Done', error:'✗ Failed', warn:'⚠ Rollback', 'active-step':'Running...' }[state] || state;
+}
+
+function reset() {
+  for(let i=1;i<=7;i++) {
+    const s=$(`s${i}`); if(!s) continue;
+    s.className = 'step';
+    if(i>4) s.style.display='none';
+    $(`b${i}`).textContent = i > 4 ? 'Pending' : 'Waiting';
+  }
+  $('alert').className='alert-box'; $('alert').textContent='Awaiting scenario selection...';
+  $('alt-actions').className='alt-actions';
+  $('terminal').innerHTML='<div class="term-hdr">Saga Orchestrator · Backend Ledger</div>';
+}
+
+async function run(type) {
+  reset();
+
+  // Step 1: AA
+  setState('s1','active-step','b1');
+  termLog('AA SDK: Triggering consent request...','api'); await sleep(700);
+  termLog('AA: Consent Artefact generated. ID: CH-A1B2C39F12','success');
+  termLog('AA: 6-month bank statement fetched & delivered to NBFC.','success');
+  setState('s1','success','b1'); await sleep(600);
+
+  // Step 2: Underwriting
+  setState('s2','active-step','b2');
+  termLog('LOS: AI Underwriting Engine running...','api'); await sleep(600);
+  termLog('LOS: Avg balance ✓  |  Bounce rate ✓  |  Cash flow ✓','info');
+  termLog('LOS: credit_approved: true | Loan ID: LN-20260415-001','success');
+  setState('s2','success','b2'); await sleep(600);
+
+  // Step 3: Mandate
+  setState('s3','active-step','b3');
+  termLog('NPCI: Initiating UPI AutoPay mandate (₹10,000/month)...','api'); await sleep(800);
+  termLog('NPCI: mandate.success | UMRN: NPCIX7T9Q2R4M8A1B5C6','success');
+  setState('s3','success','b3'); await sleep(600);
+
+  // Step 4: Disbursal
+  setState('s4','active-step','b4');
+  termLog('SPONSOR BANK: Firing NEFT ₹50,000 → Supplier account...','api'); await sleep(1200);
+
+  if(type === 'happy') {
+    termLog('SPONSOR BANK: NEFT_SUCCESS. Funds landed at Supplier.','success');
+    setState('s4','success','b4');
+    $('alert').className='alert-box show-success';
+    $('alert').textContent='✓ Order Confirmed! ₹50,000 disbursed to Supplier. Your EMI of ₹10,000 starts on the 5th.';
+    return;
+  }
+
+  // FAILURE
+  termLog('SPONSOR BANK: DISBURSAL_FAILED_BENEFICIARY_BANK_OFFLINE','error');
+  setState('s4','error','b4'); await sleep(500);
+
+  // SAGA BEGINS
+  termLog('--- SAGA ORCHESTRATOR: Cleanup Sequence Initiated ---','warn'); await sleep(500);
+
+  // S5: Mandate Revocation
+  $('s5').style.display='flex'; setState('s5','active-step','b5');
+  scrollTimelineBottom();
+  termLog('NPCI: POST /v1/mandates/revoke { UMRN, reason: LOAN_DISBURSAL_FAILURE }','api'); await sleep(900);
+  termLog("NPCI: Mandate REVOKED. User SMS: 'AutoPay mandate cancelled.'","success");
+  setState('s5','warn','b5'); await sleep(500);
+
+  // S6: Consent Revocation
+  $('s6').style.display='flex'; setState('s6','active-step','b6');
+  scrollTimelineBottom();
+  termLog('AA: DELETE /v2/consents/CH-A1B2C39F12 { reason: LOAN_NOT_DISBURSED }','api'); await sleep(800);
+  termLog('AA: Consent REVOKED. Data pipe severed. DPDP compliant.','success');
+  setState('s6','warn','b6'); await sleep(500);
+
+  // S7: NBFC Reconciliation
+  $('s7').style.display='flex'; setState('s7','active-step','b7');
+  scrollTimelineBottom();
+  termLog('NBFC LOS: Sending loan_cancelled_pre_disbursal webhook...','api'); await sleep(700);
+  termLog('NBFC LOS: Loan ID voided. Books clean for RBI audit.','success');
+  setState('s7','warn','b7'); await sleep(400);
+
+  termLog('--- SAGA COMPLETE. Zero orphaned records. ---','warn');
+  $('alert').className='alert-box show-error';
+  $('alert').textContent="⚠ Transfer failed due to Supplier bank outage. Your AutoPay mandate & data consent have been automatically cancelled. No money will be deducted.";
+  $('alt-actions').className='alt-actions visible';
+}
+</script>
+</body>
+</html>
