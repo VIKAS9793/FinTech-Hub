@@ -1,10 +1,10 @@
 # Case Study 01: Food Delivery Marketplace Fund Splitting
 
-<div style="background-color: #FDFBFF; padding: 20px; border-radius: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.04); border: 1px solid #E1E2EC; max-width: 850px; margin: 24px 0;">
-  <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 16px;">
-    <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" src="https://www.youtube.com/embed/bYnUTFCHrAk?rel=0" title="MVP Architecture Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-  </div>
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=bYnUTFCHrAk"><img src="https://img.youtube.com/vi/bYnUTFCHrAk/maxresdefault.jpg" alt="Case Study Video" style="max-width: 850px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);"></a>
 </div>
+
+
 
 ## 📝 Business Narrative
 We are building a massive food delivery marketplace. A user pays ₹1,000 for a meal. This total must be split across multiple parties (Restaurant, Partner, Government, and Platform) instantly, without the funds hitting our corporate account to remain RBI compliant.

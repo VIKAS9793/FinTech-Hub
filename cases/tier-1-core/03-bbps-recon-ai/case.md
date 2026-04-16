@@ -1,10 +1,9 @@
 # Case Study 03: Zero-Trust AI Reconciliation & The Batch Hold
 
-<div style="background-color: #FDFBFF; padding: 20px; border-radius: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.04); border: 1px solid #E1E2EC; max-width: 850px; margin: 24px 0;">
-  <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 16px;">
-    <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" src="https://www.youtube.com/embed/0pqeYgGcCb4?rel=0" title="Zero-Trust AI Reconciliation Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-  </div>
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=0pqeYgGcCb4"><img src="https://img.youtube.com/vi/0pqeYgGcCb4/maxresdefault.jpg" alt="Case Study Video" style="max-width: 850px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);"></a>
 </div>
+
 
 ## 📝 Business Narrative
 
