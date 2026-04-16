@@ -12,32 +12,31 @@ config:
     primaryBorderColor: "#1A73E8"
     lineColor: "#1A73E8"
     secondaryColor: "#E6F4EA"
-    tertiaryColor: "#FEF7E0"
+    tertiaryColor: "#FFF4E5"
     fontSize: "14px"
     fontFamily: "Inter, Roboto, sans-serif"
 ---
-sequenceDiagram
-    autonumber
-    participant U as User (App)
-    participant PG as Payment Gateway
-    participant N as Nodal Account (Escrow)
-    participant R as Restaurant Wallet
-    participant D as Driver Wallet
-    participant P as Platform/Tax
-
-    U->>PG: Pay ₹1,000 via UPI/Card
-    PG->>N: Move Funds to Nodal Account
-    Note over N: RBI Compliant Escrow
-    N->>R: Split: ₹800 (Provisioned)
-    N->>D: Split: ₹100 (Provisioned)
-    N->>P: Split: ₹100 (Provisioned)
+graph LR
+    U[User Payment] -- "₹1,000" --> PG[Payment Gateway]
+    PG -- "Capture" --> N[Nodal Account]
     
-    Note over R,P: T+1 Settlement Window
-    R-->>N: Reversal Trigger (Challenge A)
-    N->>U: Refund ₹200 from Restaurant Bucket
+    subgraph Settlement_Split [T+1 Fund Split]
+        N -- "₹800" --> R[Restaurant]
+        N -- "₹100" --> D[Driver]
+        N -- "₹100" --> P[Platform/Tax]
+    end
+
+    subgraph Refund_Saga [Challenge A: Pre-Settlement Refund]
+        R -- "Reverse ₹200" --> N
+        N -- "Refund" --> U
+    end
+
+    style N fill:#FEF7E0,stroke:#F9AB00,color:#3C4043
+    style Settlement_Split fill:#F8F9FA,stroke:#DADCE0,stroke-dasharray: 5 5
 ```
 
 Two distinct architectural patterns are required depending on **when** the refund is requested relative to the settlement window.
+
 
 
 | Challenge | Timing | Escrow State | Pattern |

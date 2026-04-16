@@ -14,19 +14,20 @@ config:
     fontSize: "14px"
     fontFamily: "Inter, Roboto, sans-serif"
 ---
-graph TD
-    A[Raw SFTP/API Data] --> B[Layer 1: The Mask]
-    B -- "HMAC-SHA256 Tokenization" --> C[Layer 2: The Brain]
-    C -- "AI Reasoning / Policy Check" --> D[Action Proposal]
-    D --> E[Layer 3: The Executioner]
-    E -- "Verify vs. SFTP Batch Truth" --> F{Confirm State?}
-    F -- YES --> G[Final Settlement]
-    F -- NO --> H[RBI Compliant Refund]
+graph LR
+    A[Raw Data] --> B[Layer 1: Mask]
+    B -- "HMAC-SHA256" --> C[Layer 2: Brain]
+    C -- "AI Decision" --> D[Action Proposal]
+    D --> E[Layer 3: Executioner]
+    E -- "Verify vs. SFTP" --> F{Confirm?}
+    F -- YES --> G[Settlement]
+    F -- NO --> H[Refund]
 
     style B fill:#E8F0FE,stroke:#1A73E8,color:#174EA6
     style C fill:#E6F4EA,stroke:#1E8E3E,color:#137333
     style E fill:#FEF7E0,stroke:#F9AB00,color:#3C4043
 ```
+
 
 This represents the ultimate intersection of AI, legacy banking, and operational reality. When dealing with a 1990s system, you cannot rely purely on webhooks and real-time APIs.
 

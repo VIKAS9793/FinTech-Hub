@@ -19,23 +19,24 @@ config:
     fontSize: "14px"
     fontFamily: "Inter, Roboto, sans-serif"
 ---
-graph TD
-    subgraph Happy_Path [1. Success Flow]
-        A[Start Loan] --> B[NPCI: Create Mandate]
-        B --> C[AA: Activate Consent]
-        C --> D[Bank: Trigger NEFT]
+graph LR
+    subgraph Success_Flow [1. Success]
+        A[Start] --> B[NPCI Mandate]
+        B --> C[AA Consent]
+        C --> D[Bank NEFT]
     end
 
-    subgraph Compensating_Transactions [2. Rollback Saga]
-        D -- "❌ DISBURSAL_FAIL" --> E[Saga Orchestrator]
-        E --> F[NPCI: Revoke Mandate]
-        F --> G[AA: Sever Consent]
-        G --> H[LOS: Void Loan]
+    subgraph Rollback_Saga [2. Fail Rollback]
+        D -- "❌ Fail" --> E[Orchestrator]
+        E --> F[Revoke Mandate]
+        F --> G[Sever Consent]
+        G --> H[Void Loan]
     end
 
     style E fill:#FAD2CF,stroke:#D93025,color:#A50E0E
     style D fill:#E6F4EA,stroke:#1E8E3E,color:#137333
 ```
+
 
 ---
 
