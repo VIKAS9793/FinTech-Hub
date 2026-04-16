@@ -3,9 +3,42 @@
 To meet the 30-second underwriting requirement while adhering to Digital Lending Guidelines (DLG), we architect our 4-step pipeline as a **Distributed Saga**. Traditional ACID transactions are impossible across decoupled ecosystems (AA, NPCI, Core Banking).
 
 > [!IMPORTANT]
-> **Key Architectural Decision: The Saga Pattern.** Traditional database transactions cannot span across external APIs (NPCI/AA). By using a **Compensating Saga**, we ensure that when any terminal step fails, the orchestrator fires inverse transactions backward through every previously succeeded step to maintain state integrity across all ecosystems.
+> **Key Architectural Decision: The Saga Pattern.** Traditional database transactions cannot span across external APIs (NPCI/AA). By using a **Compensating Saga**, we ensure that when any terminal step fires a failure, the orchestrator triggers inverse transactions backward through every previously succeeded step to maintain state integrity.
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: "#E8F0FE"
+    primaryTextColor: "#174EA6"
+    primaryBorderColor: "#1A73E8"
+    lineColor: "#1A73E8"
+    secondaryColor: "#E6F4EA"
+    tertiaryColor: "#FEF7E0"
+    fontSize: "14px"
+    fontFamily: "Inter, Roboto, sans-serif"
+---
+graph TD
+    subgraph Happy_Path [1. Success Flow]
+        A[Start Loan] --> B[NPCI: Create Mandate]
+        B --> C[AA: Activate Consent]
+        C --> D[Bank: Trigger NEFT]
+    end
+
+    subgraph Compensating_Transactions [2. Rollback Saga]
+        D -- "❌ DISBURSAL_FAIL" --> E[Saga Orchestrator]
+        E --> F[NPCI: Revoke Mandate]
+        F --> G[AA: Sever Consent]
+        G --> H[LOS: Void Loan]
+    end
+
+    style E fill:#FAD2CF,stroke:#D93025,color:#A50E0E
+    style D fill:#E6F4EA,stroke:#1E8E3E,color:#137333
+```
 
 ---
+
 
 ## ⚡ The Danger State: The Zombie Mandate
 

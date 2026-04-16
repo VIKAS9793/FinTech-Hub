@@ -1,7 +1,44 @@
 # Solution Study 01: Partial Refund with Escrow Reversal & Future Offsetting
 
 ## 🏗️ Architectural Overview
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: "#E8F0FE"
+    primaryTextColor: "#174EA6"
+    primaryBorderColor: "#1A73E8"
+    lineColor: "#1A73E8"
+    secondaryColor: "#E6F4EA"
+    tertiaryColor: "#FEF7E0"
+    fontSize: "14px"
+    fontFamily: "Inter, Roboto, sans-serif"
+---
+sequenceDiagram
+    autonumber
+    participant U as User (App)
+    participant PG as Payment Gateway
+    participant N as Nodal Account (Escrow)
+    participant R as Restaurant Wallet
+    participant D as Driver Wallet
+    participant P as Platform/Tax
+
+    U->>PG: Pay ₹1,000 via UPI/Card
+    PG->>N: Move Funds to Nodal Account
+    Note over N: RBI Compliant Escrow
+    N->>R: Split: ₹800 (Provisioned)
+    N->>D: Split: ₹100 (Provisioned)
+    N->>P: Split: ₹100 (Provisioned)
+    
+    Note over R,P: T+1 Settlement Window
+    R-->>N: Reversal Trigger (Challenge A)
+    N->>U: Refund ₹200 from Restaurant Bucket
+```
+
 Two distinct architectural patterns are required depending on **when** the refund is requested relative to the settlement window.
+
 
 | Challenge | Timing | Escrow State | Pattern |
 | :--- | :--- | :--- | :--- |

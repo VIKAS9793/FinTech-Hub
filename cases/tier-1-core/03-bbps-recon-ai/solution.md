@@ -1,6 +1,35 @@
 # The Solution: The EOD Convergence Barrier
 
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: "#E8F0FE"
+    primaryTextColor: "#174EA6"
+    primaryBorderColor: "#1A73E8"
+    lineColor: "#1A73E8"
+    secondaryColor: "#E6F4EA"
+    tertiaryColor: "#FFF4E5"
+    fontSize: "14px"
+    fontFamily: "Inter, Roboto, sans-serif"
+---
+graph TD
+    A[Raw SFTP/API Data] --> B[Layer 1: The Mask]
+    B -- "HMAC-SHA256 Tokenization" --> C[Layer 2: The Brain]
+    C -- "AI Reasoning / Policy Check" --> D[Action Proposal]
+    D --> E[Layer 3: The Executioner]
+    E -- "Verify vs. SFTP Batch Truth" --> F{Confirm State?}
+    F -- YES --> G[Final Settlement]
+    F -- NO --> H[RBI Compliant Refund]
+
+    style B fill:#E8F0FE,stroke:#1A73E8,color:#174EA6
+    style C fill:#E6F4EA,stroke:#1E8E3E,color:#137333
+    style E fill:#FEF7E0,stroke:#F9AB00,color:#3C4043
+```
+
 This represents the ultimate intersection of AI, legacy banking, and operational reality. When dealing with a 1990s system, you cannot rely purely on webhooks and real-time APIs.
+
 
 > [!IMPORTANT]
 > **Key Architectural Decision: The Legacy Bridge.** An AI agent is only as good as its data. In Indian FinTech, "Truth" often lives in offline SFTP batches, not real-time JSON APIs. This architecture uses a **Deterministic Executioner** to pause AI decisions until the "Offline Truth" (SFTP Batch) is verified.
