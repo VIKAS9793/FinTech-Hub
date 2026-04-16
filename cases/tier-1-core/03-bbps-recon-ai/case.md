@@ -3,9 +3,10 @@
 <div align="center">
   <p><b>📺 Click to watch the full architectural walkthrough</b></p>
   <a href="https://www.youtube.com/watch?v=0pqeYgGcCb4">
-    <img src="../../docs/assets/thumbnails/case_03_player.png" width="850" style="border-radius: 16px; border: 1px solid #E1E2EC; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
+    <img src="../../../docs/assets/thumbnails/case_03_player.png" width="850" style="border-radius: 16px; border: 1px solid #E1E2EC; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
   </a>
 </div>
+
 
 
 
