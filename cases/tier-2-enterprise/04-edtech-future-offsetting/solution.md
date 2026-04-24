@@ -1,5 +1,15 @@
 # The Solution: Nodal Reserves & Future Offsetting
 
+## 5 Modalities Compliance
+
+| Modality | Status | Why it applies |
+|---|---|---|
+| Fund Routing | Triggered | T0 payouts, reserve-backed refunds, future offsets, and e-NACH recovery all move different pools of money with different legal owners. |
+| State Synchronization | Triggered | Payout, refund, future sale, aging, and `mandate.revoked` webhook timing determine which recovery path is still available. |
+| Liability & Risk | Triggered | The reserve, tutor debt, and enforcement policy explicitly define who fronts the liquidity gap and how it is recovered. |
+| Data Segregation | Partial | Reserve funds, platform revenue, and tutor liabilities are isolated even though privacy is not the central challenge in this case. |
+| Graceful Degradation | Triggered | Recovery degrades from future offsetting to forced auto-debit and finally to hostile revocation enforcement. |
+
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#E8F0FE', 'primaryBorderColor': '#1A73E8', 'primaryTextColor': '#1A73E8', 'lineColor': '#5F6368', 'fontFamily': 'Inter, Arial'}}}%%
 graph TD
@@ -27,10 +37,10 @@ graph TD
     subgraph "3B. Hostile Revocation Path"
         F -.->|Tutor Flees & Cancels e-NACH| I[NPCI Webhook: mandate.revoked]:::danger
         I --> J{Ledger == Debt?}
-        J -->|Yes| K[Automated Guillotine Triggered]:::danger
-        K --> L[1. IAM Platform Lock]:::danger
-        K --> M[2. PSS Act Sec 25 Notice]:::danger
-        K --> N[3. CIBIL Defaulter Ping]:::danger
+        J -->|Yes| K[Recovery Hold Triggered]:::danger
+        K --> L[1. IAM Platform Hold]:::danger
+        K --> M[2. Legal Evidence Pack + Demand Draft]:::danger
+        K --> N[3. Bureau Reporting Review Flag]:::danger
     end
     
     A -.-> C
@@ -98,12 +108,12 @@ The system intercepts the webhook and analyzes the Tutor's ledger state:
 - If `Ledger Balance >= ₹0`: The system safely acknowledges the cancellation.
 - If `Ledger Balance < ₹0` (e.g., `-₹45,000`): The system triggers the **Hostile Revocation Protocol**.
 
-**3. The Automated Guillotine (Business & Legal)**
-Because the Tutor deliberately severed a financial recovery channel while holding active debt, the system fires three APIs synchronously without human intervention:
+**3. The Automated Recovery Hold (Business & Compliance)**
+Because the Tutor severed a financial recovery channel while holding active debt, the system fires an immediate containment workflow and opens a compliance review trail:
 
-- **The Platform Lock:** A webhook hits the internal IAM. The Tutor is instantly locked out. They cannot withdraw existing funds, cannot launch new cohorts, and active courses are suspended. Their business is halted.
-- **The Legal Trigger (Section 25 PSS Act):** Revoking an e-NACH mandate to evade a known financial liability falls under Section 25 of the Payment and Settlement Systems Act, 2007 (similar to cheque bouncing under Section 138 of the NI Act). The system automatically generates a customized, RBI-compliant Legal Demand Notice using the timestamped webhook logs and APIs it to the Tutor via Email and WhatsApp.
-- **The CIBIL/Credit Hit:** Because the platform holds the Tutor's KYC PAN card, the system updates their profile to "Defaulter." If they do not clear the negative balance via an automated UPI manual-payment link within 72 hours, the platform reports the default to the Credit Bureaus, systematically destroying their personal credit score.
+- **The Platform Hold:** A webhook hits the internal IAM. The Tutor cannot withdraw pending balances or launch new cohorts until the negative ledger is cleared.
+- **The Legal Review Trigger:** The system generates a timestamped evidence pack and demand-notice draft for counsel / compliance review. It does not claim automatic criminal liability merely because a mandate was revoked.
+- **The Credit-Bureau Review Flag:** The profile is marked for bureau-reporting eligibility review only if the debt remains unpaid after the contractual cure period and the platform has the required consent, dispute process, and reporting basis.
 
 **The Closing Argument:**
-We cannot physically stop a Tutor from tapping "Cancel" on their phone. But this architecture guarantees that if they attempt to abscond with ₹45,000, they lose their entire business on SkillX, face a Section 25 criminal legal notice, and destroy their CIBIL score—all fully automated within 900 milliseconds of the webhook firing.
+We cannot physically stop a Tutor from tapping "Cancel" on their phone. But this architecture ensures the platform stops new exposure immediately, preserves evidence, opens a recovery path, and routes any legal / bureau action through a controlled review instead of an irreversible automated punishment.

@@ -1,5 +1,15 @@
 # The Solution: Dynamic Tolerance & Forward Offsetting
 
+## 5 Modalities Compliance
+
+| Modality | Status | Why it applies |
+|---|---|---|
+| Fund Routing | Partial | The bank rail stays intentionally dumb, while the internal ledger decides how credited cash should be classified. |
+| State Synchronization | Triggered | The collection webhook must later converge with government tax evidence before the invoice can close permanently. |
+| Liability & Risk | Triggered | Tolerance bands cap revenue leakage, and arrears injection preserves recoverability without false downtime. |
+| Data Segregation | Not Applicable | Privacy separation is not the primary design driver in this tax-matching workflow. |
+| Graceful Degradation | Triggered | Exact-match failure degrades into `PROVISIONALLY_PAID` and then into arrears instead of immediate suspension. |
+
 To prevent enterprise downtime while ensuring we don't expose the platform to generalized short-payments, we mathematically bind the PA Virtual Accounts to the statutory tax parameters.
 
 ```mermaid
@@ -47,8 +57,10 @@ The Indian banking network (NEFT/RTGS) is a "dumb pipe" that only speaks money. 
 When a client short-pays to account for TDS, the `virtual_account.credited` webhook hits our server entirely bare: `amount: 4500000` (in paise).
 We do not configure the Payment Aggregator to physically enforce complex tax boundary logic. Instead, our **Internal State Machine** applies the business rules.
 
-When the raw webhook arrives, the logic evaluates the "Tolerance Band":
-`IF received_amount == (expected_amount * 0.90)`
+When the raw webhook arrives, the logic evaluates a configurable "Tolerance Band" set:
+`IF received_amount == expected_amount * (1 - supported_tds_rate)`
+
+The default band in this case is **10%**, but the implementation should allow alternative statutory interpretations such as **2%** without changing the state machine.
 
 ## Layer 2: The BBPS-Style Provisional State
 Because the mathematical delta matches a perfect 10% statutory TDS deduction, the system shifts the Invoice into a highly specific holding state: `PROVISIONALLY_PAID`.

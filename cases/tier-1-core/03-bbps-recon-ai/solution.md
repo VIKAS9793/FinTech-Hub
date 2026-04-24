@@ -1,5 +1,15 @@
 # The Solution: The EOD Convergence Barrier
 
+## 5 Modalities Compliance
+
+| Modality | Status | Why it applies |
+|---|---|---|
+| Fund Routing | Partial | The core decision is whether suspense funds should settle to the biller or refund the user, even though no multi-party split occurs. |
+| State Synchronization | Triggered | Realtime API truth and offline batch truth can disagree for hours, so the ledger needs an explicit convergence barrier. |
+| Liability & Risk | Triggered | A false refund creates direct platform loss because the biller may still demand settlement after an offline post. |
+| Data Segregation | Triggered | Raw biller logs must be tokenized before any AI analysis to satisfy zero-trust privacy boundaries. |
+| Graceful Degradation | Triggered | Unsafe AI outputs degrade into `PENDING_BATCH_RECON` or manual review instead of immediate money movement. |
+
 ```mermaid
 ---
 config:
@@ -80,6 +90,8 @@ flowchart LR
 When the LLM outputs `{"suggested_action": "REFUND_TO_USER"}` because the API is dead, the Executioner intercepts.
 
 **The "Hold" State:** The Executioner shifts the transaction to `PENDING_BATCH_RECON`. It deliberately delays execution, explicitly waiting for the upcoming **2:00 AM SFTP file drop**.
+
+**The "No-Execute" State:** If the AI's `confidence_score <= 0.95`, the Executioner still refuses to move money. The transaction is queued for manual analyst review because low-confidence automation is safer than a false settle or false refund.
 
 ---
 

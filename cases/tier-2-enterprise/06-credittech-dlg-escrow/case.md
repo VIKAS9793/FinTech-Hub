@@ -17,7 +17,7 @@ The CEO demands an entirely automated, API-driven solution to solve two massive 
 
 A Junior Developer might suggest building a generic API integration where SwiftCred's corporate account automatically transfers the money out, and collects the money back in.
 
-This architecture results in an immediate federal audit and a cessation of business operations.
+This architecture creates direct supervisory, partner, and business-continuity risk.
 
 **Modality 1: The Fund Routing Modality.**
 Under the RBI's stringent **Digital Lending Guidelines (DLG)**, an LSP (SwiftCred) **cannot touch the principal loan amount**.
@@ -25,6 +25,6 @@ The physical Flow of Funds must be direct:
 - **Pay-Out:** Must travel *directly* from the NBFC's bank account to the Borrower's bank account.
 - **Pay-In:** Must travel *directly* from the Borrower's bank account to the NBFC's bank account.
 
-If the principal loan capital ever pools or passes through SwiftCred’s corporate checking account, it is considered illegal co-mingling and an unlicensed shadow-banking operation.
+If the principal loan capital ever pools or passes through SwiftCred’s corporate checking account, it creates prohibited co-mingling and shadow-lending risk.
 
 We must build an automated, real-time, Two-Sided API Ledger without the LSP ever physically touching the capital.

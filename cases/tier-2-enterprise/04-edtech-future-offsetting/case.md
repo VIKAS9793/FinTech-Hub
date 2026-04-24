@@ -22,7 +22,7 @@ By attempting to fulfill both promises without architectural guardrails, the CEO
 
 ### The Federal Law Violation
 Initially, SkillX routed the ₹50,000 directly into their corporate checking account at ICICI Bank, planning to wire the money out at the end of the month. 
-By accepting third-party seller funds, holding them, and redistributing them later without an RBI Payment Aggregator license, SkillX is engaged in **illegal co-mingling of funds**. If audited under the **PSS Act**, their corporate accounts will be frozen.
+By accepting third-party seller funds, holding them, and redistributing them later without an RBI Payment Aggregator license, SkillX is engaged in **illegal co-mingling of funds**. Under a PSS Act audit, this creates account-freeze, enforcement, and business-continuity risk.
 
 ### The Infinite Treasury Bleed
 If we move to an automated PA, but follow the CEO's instructions blindly:

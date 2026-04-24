@@ -1,5 +1,15 @@
 # 💳 Solution Study 01 — Partial Refund with Escrow Reversal & Future Offsetting
 
+## 5 Modalities Compliance
+
+| Modality | Status | Why it applies |
+|---|---|---|
+| Fund Routing | Triggered | The refund path changes based on whether money is still in escrow, in unsettled balances, or already requires reserve funding. |
+| State Synchronization | Triggered | `T+0` versus `T+2` timing determines which API actions are legal and which balances are still reachable. |
+| Liability & Risk | Triggered | The reserve drawdown and negative ledger explicitly assign the refund deficit to the restaurant instead of the platform treasury. |
+| Data Segregation | Partial | Separate escrow, reserve, and merchant ledger balances matter here even though privacy is not the core failure mode. |
+| Graceful Degradation | Triggered | Failed transfer reversal degrades into rolling-balance interception and then reserve-backed recovery instead of dead-ending. |
+
 ---
 
 ## 🏗️ Architectural Overview
@@ -256,15 +266,26 @@ GET /accounts/acc_RestaurantX/balance
 > [!IMPORTANT]
 > When the Food Platform onboarded with the PA, a **₹5 Crore Dispute & Refund Reserve** was pre-deposited into a _segregated compartment_ of the PA's Nodal Account.
 
-**This is RBI-compliant because it is:**
-- Pre-declared to the PA and RBI as a dispute buffer
+**This is regulatorily defensible in this theoretical model because it is:**
+- Configured with the PA as a segregated dispute / refund buffer
 - **Not co-mingled** with the Platform's operational treasury
-- Legally classified as a _"Customer Funds Reserve"_, not corporate capital
+- Tracked as a settlement-risk reserve instead of ordinary corporate working capital
 
 ```
 PA.Refund.PullFromReserve(amount=200, reason="DISPUTE_PARTIAL_REFUND")
 → ₹200 instantly wired to user's UPI  ✅
 ```
+
+---
+
+### Reserve Floor & Depletion Circuit Breaker
+
+The reserve cannot be treated as infinite. At scale, the platform needs an explicit sizing and shutdown rule:
+
+- **Reserve floor formula:** `minimum_reserve = peak_disputed_refunds_per_day x average_refund_amount x recovery_days + safety_buffer`
+- **Early warning:** if `reserve_balance < reserve_floor`, the risk engine raises an operations alert and stops onboarding new merchants into the instant-refund promise.
+- **Circuit breaker:** if the reserve falls below the hard floor, the system flips the checkout policy to `RISK_CIRCUIT_OPEN` and disables new T0 liquidity promises until treasury tops the reserve back up.
+- **Product fallback:** orders can still be accepted, but payouts degrade to delayed settlement so the platform does not promise refunds it cannot physically honor.
 
 ---
 

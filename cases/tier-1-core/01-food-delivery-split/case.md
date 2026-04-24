@@ -13,7 +13,7 @@
 
 
 ## 📝 Business Narrative
-We are building a massive food delivery marketplace. A user pays ₹1,000 for a meal. This total must be split across multiple parties (Restaurant, Partner, Government, and Platform) instantly, without the funds hitting our corporate account to remain RBI compliant.
+We are building a massive food delivery marketplace. A user pays ₹1,000 for a meal. This total must be split across multiple parties (Restaurant, Partner, Government, and Platform) instantly, without the funds hitting our corporate account so the flow remains aligned with regulated PA fund-flow boundaries.
 
 ## 🏢 Stakeholders
 - **User**: Hungry customer paying via UPI.
@@ -50,6 +50,6 @@ The exact same scenario, but the user notices the missing Paneer Tikka **two day
 
 ### Constraints
 1. **API Failure**: The `Transfer Reversal` API will return `INSUFFICIENT_ESCROW_BALANCE` — the vault is dry.
-2. **Regulatory Compliance**: The Food Platform **cannot** wire ₹200 from its corporate Partner Bank account. Mixing corporate funds with user funds is **illegal co-mingling** under RBI regulations (shadow banking).
+2. **Regulatory Compliance**: The Food Platform **cannot** wire ₹200 from its corporate Partner Bank account. Mixing corporate funds with user funds creates co-mingling and unlicensed PA / settlement-risk exposure.
 3. **User Experience**: The user still demands an instant refund — they will delete the app otherwise.
 4. **Restaurant Accountability**: The restaurant is 100% at fault and must absorb the loss eventually.

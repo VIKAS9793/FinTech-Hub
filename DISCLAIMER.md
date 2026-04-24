@@ -43,7 +43,7 @@ This repository builds its case studies upon the foundational principles of the 
 - **Source:** Sahamati (Collective of Account Aggregators in India) and RBI NBFC-AA Master Directions.
 
 ### Unified Payments Interface (UPI) & Bharat Bill Payment System (BBPS)
-- **Concept:** 4-Party Models, T+1 Turn Around Time (TAT) mandates for failed transactions, and Deferred Clearing.
+- **Concept:** 4-Party Models, applicable failed-transaction Turn Around Time (TAT) / auto-reversal windows, and Deferred Clearing.
 - **Source:** National Payments Corporation of India (NPCI) and NPCI Bharat BillPay Limited (NBBL) procedural guidelines.
 
 ---

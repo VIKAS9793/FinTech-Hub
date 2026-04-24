@@ -12,7 +12,7 @@
 
 ![Static Badge](https://img.shields.io/badge/Status-Project_Hub-blue?style=for-the-badge)
 ![Static Badge](https://img.shields.io/badge/Domain-FinTech-green?style=for-the-badge)
-![Static Badge](https://img.shields.io/badge/Standards-RBI_Compliant-red?style=for-the-badge)
+![Static Badge](https://img.shields.io/badge/Standards-RBI_Grounded-red?style=for-the-badge)
 ![Repo Visits](https://api.visitorbadge.io/api/VisitorHit?user=VIKAS9793&repo=FinTech-Hub&label=Repo%20Visits&countColor=%23f39c12&labelStyle=flat-square)
 
 Welcome to the **FinTech Hub**. This repository documents real-world FinTech architectural patterns and payment solutions. From multi-party fund splitting to ledger reconciliation, we break down complex business requirements and translate them into practical, compliant technical blueprints.
@@ -33,8 +33,8 @@ Every case in this hub follows a standardized structure to ensure clarity and sc
 │   └── [case-id-name]/
 │       ├── case.md          # The business narrative and constraints
 │       ├── solution.md      # Technical logic and API state machines
-│       └── src/             # Code prototypes and mock implementations
-├── tier-2-enterprise/       # Advanced B2B regulatory edge cases (Cases 04–06)
+│       └── src/             # Browser demo + reusable simulator
+├── tier-2-enterprise/       # Advanced B2B regulatory edge cases (Cases 04–07)
 │   ├── README.md            # Portfolio summary of all Tier 2 cases
 │   └── [case-id-name]/
 │       ├── case.md
@@ -42,6 +42,8 @@ Every case in this hub follows a standardized structure to ensure clarity and sc
 │       └── src/
 └── _template/               # Blank scaffold for new cases
 ```
+
+Every completed case pairs the documentation with a no-build demo surface in `src/index.html` and a reusable simulator in `src/mock_api.js`, so the same sad path can be replayed in the browser or executed headlessly in Node.
 
 ---
 
@@ -67,7 +69,7 @@ Assume the network will fail. A `200 OK` response is a luxury, not a guarantee. 
 > 
 > **The Absolute Constraint:** No state change can be assumed without a deterministic receipt. Every transaction must be uniquely trackable and verifiable.
 > 
-> **The Architect's Translation:** *"Are we passing Idempotency Keys to prevent double-charging? Do we have a background Status Polling job running to catch asynchronous timeouts (like UPI U19 errors) and map them to RBI T+1 auto-reversal mandates?"*
+> **The Architect's Translation:** *"Are we passing Idempotency Keys to prevent double-charging? Do we have a background Status Polling job running to catch asynchronous timeouts and map them to the applicable RBI failed-transaction TAT / reversal window?"*
 
 ---
 
@@ -117,7 +119,7 @@ When a multi-step distributed process fails in the middle, you cannot leave the 
 | **03** | [Zero-Trust AI Reconciliation & Batch Hold](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-1-core/03-bbps-recon-ai/case.md) | Legacy SFTP Batch synchronization & AI DPDP Masking | ✅ Solved |
 
 ### 🟣 Tier 2 — Enterprise B2B Regulatory Edge Cases (`cases/tier-2-enterprise/`)
-> Advanced scenarios: nodal reserves, TDS reconciliation, DLG closed-loop ledgers.
+> Advanced scenarios: nodal reserves, TDS reconciliation, DLG closed-loop ledgers, and recurring-revenue grace ledgers.
 > 📋 [View full Tier 2 portfolio overview →](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-2-enterprise/README.md)
 
 | ID | Case Study | Core Challenge | Status |
@@ -125,18 +127,19 @@ When a multi-step distributed process fails in the middle, you cannot leave the 
 | **04** | [EdTech B2B2C 100% Liquidity & Future Offsetting](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-2-enterprise/04-edtech-future-offsetting/case.md) | T0 PA Routing vs 7-Day Refund risk trap managed via e-NACH & Negative Ledgers | ✅ Solved |
 | **05** | [B2B SaaS Aggregation & Automated TDS Reconciliation](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-2-enterprise/05-b2b-tds-reconciliation/case.md) | Solving the 10% Statutory Deduction mismatch via Smart Collect Rules & Forward Offsetting | ✅ Solved |
 | **06** | [CreditTech LSP & The Two-Sided Ledger](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-2-enterprise/06-credittech-dlg-escrow/case.md) | Eliminating co-mingling via RazorpayX Scoped Escrows & zero-touch Smart Collect VPAs | ✅ Solved |
+| **07** | [Global Streaming UPI AutoPay & The Grace Ledger](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-2-enterprise/07-streaming-upi-grace-ledger/case.md) | Separating bank ambiguity from user failure in recurring UPI collections with a dual-clock grace ledger | ✅ Solved |
 
 ---
 
 ## 🛠️ Infrastructure Overview
 
-Most solutions here revolve around the integration of **Payment Aggregators (PA)**, **Nodal Escrow accounts**, and **Internal Ledgers**.
+Most solutions here revolve around **Payment Aggregators (PA)**, **Nodal Escrow accounts**, **recurring mandates**, **reconciliation workers**, and **Internal Ledgers**.
 
 ### Core Flow Loop
 1. **Pay-In**: Capture funds in a regulated Escrow.
 2. **Ledgers**: Calculate splits in internal database tables.
 3. **Payouts**: Trigger Route APIs to move sub-allocations.
-4. **Settlement**: Physical bank transfers completed at T+1.
+4. **Settlement**: Physical bank transfers complete under the applicable rail-specific settlement / TAT window.
 
 ---
 

@@ -28,7 +28,7 @@ It is slow, prone to human error, and costs a fortune. The CEO wants you to repl
 
 ## ⚡ The Zero-Trust AI Architecture
 
-Junior PMs give an LLM direct API POST access. When the LLM hallucinates a ₹50,000 refund, the RBI revokes your license. 
+Junior PMs give an LLM direct API POST access. When the LLM hallucinates a ₹50,000 refund, the platform creates a customer-loss incident, audit exposure, and regulatory escalation risk.
 A Senior PM builds a **Three-Layer Strict Zero-Trust** framework:
 
 ### Layer 1: The Mask (DPDP Privacy Compliance)

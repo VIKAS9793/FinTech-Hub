@@ -5,6 +5,8 @@
 
 This document provides a high-level summary of the foundational Tier 1 Case Studies. Each section links to the full case and solution documentation.
 
+Every Tier 1 case now includes a browser-playable demo in `src/index.html` backed by a reusable simulator in `src/mock_api.js`.
+
 ---
 
 ## 📂 Tier 1 Case Navigation

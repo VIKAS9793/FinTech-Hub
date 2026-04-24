@@ -1,9 +1,11 @@
 # 🟣 Tier 2 — Enterprise B2B Regulatory Edge Cases
 
-> **Advanced scenarios: nodal reserves, TDS reconciliation, and DLG closed-loop ledgers.**
+> **Advanced scenarios: nodal reserves, TDS reconciliation, DLG closed-loop ledgers, and recurring-revenue grace ledgers.**
 > These case studies demonstrate elite-level FinTech product and system architecture, addressing the hardest regulatory and ledger-state conflicts in the Indian FinTech ecosystem.
 
-This document is the high-level summary of all three Tier 2 case studies. Each section links directly to the full case file and solution file for detailed architecture, Mermaid diagrams, and state machine logic.
+This document is the high-level summary of all four Tier 2 case studies. Each section links directly to the full case file and solution file for detailed architecture, Mermaid diagrams, and state machine logic.
+
+Each Tier 2 case ships a no-build browser demo in `src/index.html` plus a reusable simulator in `src/mock_api.js`.
 
 ---
 
@@ -14,6 +16,7 @@ This document is the high-level summary of all three Tier 2 case studies. Each s
 | **04** | EdTech B2B2C — Liquidity & Future Offsetting | [case.md](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-2-enterprise/04-edtech-future-offsetting/case.md) | [solution.md](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-2-enterprise/04-edtech-future-offsetting/solution.md) |
 | **05** | B2B SaaS — Automated TDS Reconciliation | [case.md](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-2-enterprise/05-b2b-tds-reconciliation/case.md) | [solution.md](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-2-enterprise/05-b2b-tds-reconciliation/solution.md) |
 | **06** | CreditTech LSP — The Two-Sided Ledger | [case.md](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-2-enterprise/06-credittech-dlg-escrow/case.md) | [solution.md](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-2-enterprise/06-credittech-dlg-escrow/solution.md) |
+| **07** | Global Streaming UPI AutoPay — The Grace Ledger | [case.md](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-2-enterprise/07-streaming-upi-grace-ledger/case.md) | [solution.md](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-2-enterprise/07-streaming-upi-grace-ledger/solution.md) |
 
 ---
 
@@ -28,7 +31,7 @@ SkillX, a cohort-based EdTech platform, charges ₹50,000 for courses. They take
 ### 2. The Compliance & Risk Traps
 
 > [!WARNING]
-> **Regulatory Trap (PSS Act):** Pooling third-party merchant (tutor) funds in a corporate operational account is **illegal fund co-mingling**. SkillX is operating as an unlicensed Payment Aggregator, risking immediate **RBI account freezes** under the Payment and Settlement Systems Act, 2007.
+> **Regulatory Trap (PSS Act):** Pooling third-party merchant (tutor) funds in a corporate operational account is **illegal fund co-mingling**. SkillX is operating as an unlicensed Payment Aggregator, creating account-freeze, enforcement, and business-continuity risk under the Payment and Settlement Systems Act, 2007.
 
 > [!WARNING]
 > **Mathematical Trap (The Nodal Deficit):** If ₹45,000 is instantly paid out on Day 1, and the student demands a ₹50,000 refund on Day 6, the transaction ledger is empty. The platform is forced to fund the ₹45,000 deficit from its own treasury.
@@ -46,7 +49,7 @@ SkillX, a cohort-based EdTech platform, charges ₹50,000 for courses. They take
 > [!CAUTION]
 > **Malicious Path:** A bad-actor tutor sells 10 courses, cashes out ₹4.5 Lakhs instantly, and all 10 students request refunds on Day 6. The tutor abandons the platform — rendering Future Offsetting completely useless and draining the Refund Reserve.
 
-**The Architectural Defense:** During KYC onboarding, the system mandates an e-NACH AutoPay mandate as a security deposit. If a ledger remains negative for 15 days, the system auto-debits the tutor's personal bank account. If the tutor attempts a "Hostile Revocation" (canceling the mandate via their banking app to evade the debt), the webhook triggers an automated guillotine: it locks their platform IAM access, issues a **Section 25 PSS Act** legal demand notice, and reports the default to **CIBIL**.
+**The Architectural Defense:** During onboarding, the system requires a contract-backed e-NACH recovery mandate. If a ledger remains negative after the cure period, the system attempts recovery through that authorized rail. If the tutor revokes the mandate while debt is open, the webhook applies an IAM hold, preserves an evidence pack, and routes legal / bureau action through compliance review instead of treating revocation alone as automatic criminal liability.
 
 → **Full architecture & Mermaid diagram:** [solution.md](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-2-enterprise/04-edtech-future-offsetting/solution.md)
 
@@ -98,7 +101,7 @@ SwiftCred, acting as a Lending Service Provider (LSP), partners with an NBFC to 
 ### 2. The Compliance & Risk Traps
 
 > [!WARNING]
-> **Regulatory Trap (DLG Flow of Funds):** Under RBI's September 2022 Digital Lending Guidelines, an LSP **cannot touch the principal capital** at any point. If the loan money pools in the LSP's corporate account — even temporarily — the NBFC faces **immediate license revocation**.
+> **Regulatory Trap (DLG Flow of Funds):** Under RBI's September 2022 Digital Lending Guidelines, an LSP **cannot touch the principal capital** at any point. If the loan money pools in the LSP's corporate account — even temporarily — the NBFC faces serious supervisory and licensing risk.
 
 > [!WARNING]
 > **Ledger Trap (Blind Reconciliation):** Generic UPI transfers carry zero metadata. Relying on user-entered remarks (e.g., "For EMI") is non-deterministic and creates **orphaned payments** and **false loan defaults**.
@@ -106,7 +109,7 @@ SwiftCred, acting as a Lending Service Provider (LSP), partners with an NBFC to 
 ### 3. Trade-off Analysis & Solution Selection
 
 > [!NOTE]
-> **Alternative A Rejected — LSP-Managed Disbursals:** The NBFC wires a ₹1 Crore "float" to the LSP's corporate account, and the LSP uses standard payouts. *Rejected because* this is a direct DLG violation — the LSP is physically touching the principal. It results in immediate license revocation for the NBFC and a ban for the LSP.
+> **Alternative A Rejected — LSP-Managed Disbursals:** The NBFC wires a ₹1 Crore "float" to the LSP's corporate account, and the LSP uses standard payouts. *Rejected because* this is a direct DLG violation — the LSP is physically touching the principal and creates unacceptable supervisory, licensing, and partner-risk exposure.
 
 > [!IMPORTANT]
 > **Selected Architecture — Closed-Loop Credit Ledger via Scoped IAM:**
@@ -121,6 +124,41 @@ SwiftCred, acting as a Lending Service Provider (LSP), partners with an NBFC to 
 **The Architectural Defense:** Migration from "Push" to "Pull" architecture. Before disbursal, the onboarding flow requires a **UPI AutoPay Mandate** tied to the loan agreement. On the EMI date, the system silently triggers the NPCI switch to pull the pre-authorized amount — routing funds directly to the NBFC Escrow and flipping the ledger state to `PAID`. No user action required.
 
 → **Full architecture & Mermaid diagram:** [solution.md](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-2-enterprise/06-credittech-dlg-escrow/solution.md)
+
+---
+
+## Case Study 07: Global Streaming Giant (StreamFlow)
+**Domain:** Consumer subscriptions, UPI AutoPay, recurring revenue protection.
+
+### 1. The Business Problem (The War Room)
+StreamFlow sells a monthly subscription for ₹999 and collects renewals through UPI AutoPay mandates.
+**The Goal:** Preserve a frictionless consumer experience by granting a 3-day grace period instead of cutting access immediately on failed renewals.
+**The Operating Reality:** On billing day, 1 million pull requests are fired. Issuer-bank EOD delays keep some debits in limbo for hours, and switch congestion returns timeouts for thousands of requests.
+
+### 2. The Compliance & Risk Traps
+
+> [!WARNING]
+> **State-Sync Trap (RBI Failed Transaction TAT):** A timeout does not prove either debit success or debit failure. Treating unresolved pulls as ordinary churn events creates double-debit risk, false suspensions, and fictional revenue.
+
+> [!WARNING]
+> **Revenue Trap (Grace Leakage):** If every failed renewal gets the same 3-day commercial grace, the platform silently gives away service to users whose debit was never actually initiated, while misclassifying bank-side ambiguity as user fault.
+
+### 3. Trade-off Analysis & Solution Selection
+
+> [!NOTE]
+> **Alternative A Rejected — One Timer For Everything:** Apply the same D+3 grace rule to hard failures, timeouts, and mandate revocations. *Rejected because* unresolved bank-side states are governed by separate reconciliation and auto-reversal timelines; collapsing them into one bucket guarantees ledger drift.
+
+> [!IMPORTANT]
+> **Selected Architecture — Dual-Clock Grace Ledger & Resolution Barrier:** Payment truth stays in a collections-attempt ledger while product access moves into explicit entitlement states. Deterministic customer failures run on a commercial D+3 grace timer, while timeout cohorts remain in a separate `SYSTEM_PENDING_ACCESS` state until the issuer / PSP / reconciliation flow resolves them under the applicable failed-transaction window.
+
+### 4. The Nightmare Edge Case: Hostile Revocation During Ambiguity
+
+> [!CAUTION]
+> **Revocation Signal:** A user sees a pending renewal, revokes the UPI mandate on Day 2, and keeps consuming service during the grace period. Silent retries are no longer lawful or operationally safe, but immediate suspension breaks the CEO's frictionless-experience promise.
+
+**The Architectural Defense:** The revocation webhook reclassifies the user into `MANDATE_REVOKED_GRACE`, stops background mandate retries, opens only two recovery rails (fresh mandate setup or one-time payment), and hard-suspends at grace expiry if neither succeeds. Revenue exposure is explicit, reversible, and capped.
+
+→ **Full architecture & Mermaid diagram:** [solution.md](https://github.com/VIKAS9793/FinTech-Hub/blob/main/cases/tier-2-enterprise/07-streaming-upi-grace-ledger/solution.md)
 
 ---
 

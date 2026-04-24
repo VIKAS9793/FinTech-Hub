@@ -1,5 +1,15 @@
 # 🏗️ Architectural Blueprint — 5-Step Compensating Saga Rollback
 
+## 5 Modalities Compliance
+
+| Modality | Status | Why it applies |
+|---|---|---|
+| Fund Routing | Triggered | The rollback determines whether customer-authorized money can ever be pulled for a loan that failed before disbursal. |
+| State Synchronization | Triggered | NPCI, AA, the sponsor bank, and internal LOS state can diverge unless the saga records deterministic rollback receipts. |
+| Liability & Risk | Triggered | Zombie mandates and half-open loan records create direct legal, audit, and customer-harm exposure. |
+| Data Segregation | Triggered | AA consent must be severed the moment the failed loan no longer has a valid purpose under the data-sharing contract. |
+| Graceful Degradation | Triggered | A failed disbursal degrades into a compensating saga plus background reconciliation rather than leaving liabilities open. |
+
 To meet the **30-second underwriting requirement** while adhering to Digital Lending Guidelines (DLG), we architect our 4-step pipeline as a **Distributed Saga**. Traditional ACID transactions are impossible across decoupled ecosystems (AA, NPCI, Core Banking).
 
 > [!IMPORTANT]
@@ -166,7 +176,7 @@ flowchart TD
     OK(["✅ REVOCATION_SUCCESS\nLogged — Done"])
     TIMEOUT(["⏱️ Timeout / Webhook\nFails"])
     WORKER(["🔁 Background\nReconciliation Worker\n(Polls every 60 min)"])
-    ORPHAN(["🔍 Detect Orphaned\nActive Mandates"])
+    ORPHAN(["🔍 Detect Orphaned\nMandates / Consents"])
     RETRY(["↩️ Force Retry\nRevocation Saga"])
     DONE(["✅ REVOCATION_SUCCESS\nLogged — System Clean"])
 
@@ -187,7 +197,15 @@ flowchart TD
 ```
 
 > [!CAUTION]
-> **Nightmare Scenario:** The Disbursal fails, but the **Revocation Webhook itself fails or times out**. The user now has an active mandate but no loan. The system must implement a **Background Reconciliation Worker** that polls for _"Orphaned Active Mandates"_ every 60 minutes and forces a retry of the revocation saga until a `REVOCATION_SUCCESS` receipt is logged.
+> **Nightmare Scenario:** The Disbursal fails, but the **revocation receipts time out**. The user can now have an active mandate and/or a still-live AA consent despite a cancelled loan. The system must implement a **Background Reconciliation Worker** that polls every 60 minutes for orphaned mandates **and orphaned consents**, then retries the relevant revocation call until both receipts are logged.
+
+### Extending the Worker to AA Consent Timeouts
+
+The worker should maintain a single orphan-liability queue keyed by `loan_id`, with both the `umrn` and `consent_handle_id` attached:
+
+- If mandate revocation is missing, retry `POST /v1/mandates/revoke` until an authoritative `MANDATE_REVOKED` receipt arrives.
+- If consent severance is missing, retry the AA consent revocation until `CONSENT_SEVERED` is logged.
+- The saga only reaches `SAGA_COMPLETE` after **both** liabilities are neutralized and the NBFC LOS is voided.
 
 ---
 

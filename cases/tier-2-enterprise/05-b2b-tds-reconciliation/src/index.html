@@ -3,29 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FinTech Hub: Zero-Trust Reconciliation Demo</title>
+  <title>FinTech Hub: TDS Reconciliation Demo</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #045a8d;
-      --primary-soft: #d6ecfb;
-      --surface: #fbfdff;
-      --surface-2: #eef4f8;
-      --outline: #7a8794;
-      --text: #15212b;
-      --success: #1b7a4a;
-      --success-soft: #d9f4e4;
-      --error: #b52d2d;
-      --error-soft: #fbe0df;
-      --warn: #996200;
-      --warn-soft: #f9ebc8;
-      --terminal: #14181d;
-      --terminal-text: #edf2f7;
-      --terminal-api: #8ad1ff;
-      --terminal-success: #8be3b0;
+      --primary: #8a5a00;
+      --primary-soft: #f7e5c7;
+      --surface: #fdfcf9;
+      --surface-2: #f3efe6;
+      --outline: #7f7a70;
+      --text: #1f221f;
+      --success: #28724a;
+      --success-soft: #dff2e7;
+      --error: #b63a3a;
+      --error-soft: #f9e2e0;
+      --warn: #a56f00;
+      --warn-soft: #fbefcf;
+      --terminal: #171512;
+      --terminal-text: #f4efe9;
+      --terminal-api: #ffd28a;
+      --terminal-success: #9ae3b7;
       --terminal-error: #ffb1b1;
-      --terminal-warn: #ffd480;
-      --terminal-prompt: #c7cdd6;
+      --terminal-warn: #ffe08c;
       --radius-xl: 28px;
       --radius-l: 20px;
       --radius-m: 14px;
@@ -39,7 +38,7 @@
     }
 
     body {
-      background: linear-gradient(180deg, #eff5fa 0%, #f6f8fb 100%);
+      background: linear-gradient(180deg, #faf4ea 0%, #f7f8fb 100%);
       color: var(--text);
       display: flex;
       flex-direction: column;
@@ -49,9 +48,9 @@
 
     header {
       align-items: center;
-      background: rgba(251, 253, 255, 0.92);
+      background: rgba(253, 252, 249, 0.92);
       backdrop-filter: blur(10px);
-      border-bottom: 1px solid #dce5ee;
+      border-bottom: 1px solid #ebe3d3;
       display: flex;
       justify-content: space-between;
       padding: 12px 24px;
@@ -78,25 +77,26 @@
     }
 
     .pane {
-      background: rgba(251, 253, 255, 0.94);
+      background: rgba(253, 252, 249, 0.95);
       border-radius: var(--radius-xl);
-      box-shadow: 0 12px 40px rgba(24, 42, 59, 0.08);
+      box-shadow: 0 12px 40px rgba(40, 30, 10, 0.08);
     }
 
     .pane-ui {
       display: flex;
-      flex: 1.15;
+      flex: 1.14;
       flex-direction: column;
       gap: 14px;
       padding: 20px;
     }
 
     .controls {
-      background: #e7eef4;
+      background: #f1e7d5;
       border-radius: 999px;
       display: flex;
       gap: 8px;
       padding: 8px;
+      flex-wrap: wrap;
     }
 
     button {
@@ -106,14 +106,15 @@
       color: var(--text);
       cursor: pointer;
       flex: 1;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 600;
-      padding: 9px 12px;
-      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+      min-width: 110px;
+      padding: 9px 11px;
+      transition: background 0.2s ease;
     }
 
     button:hover:not(:disabled) {
-      background: rgba(4, 90, 141, 0.08);
+      background: rgba(138, 90, 0, 0.08);
     }
 
     button.active-btn {
@@ -139,7 +140,7 @@
 
     .metric-card {
       background: var(--surface);
-      border: 1px solid #dde6ef;
+      border: 1px solid #ece4d5;
       border-radius: var(--radius-l);
       padding: 14px 16px;
     }
@@ -174,14 +175,14 @@
     }
 
     .timeline::-webkit-scrollbar-thumb {
-      background: #dbe5ee;
+      background: #e8decf;
       border-radius: 999px;
     }
 
     .step {
       align-items: center;
       background: var(--surface);
-      border: 1.5px solid #dde6ef;
+      border: 1.5px solid #ece4d5;
       border-radius: var(--radius-l);
       display: flex;
       gap: 14px;
@@ -218,7 +219,7 @@
     }
 
     .step-badge {
-      background: #ebf1f6;
+      background: #f1ebe1;
       border-radius: 999px;
       color: var(--outline);
       font-size: 0.7rem;
@@ -228,7 +229,7 @@
 
     .step.active-step {
       background: var(--primary-soft);
-      border-color: #86c7ee;
+      border-color: #e0bb78;
     }
 
     .step.active-step .step-icon,
@@ -239,7 +240,7 @@
 
     .step.success {
       background: var(--success-soft);
-      border-color: #9ed4b2;
+      border-color: #9fd4b6;
     }
 
     .step.success .step-icon,
@@ -250,7 +251,7 @@
 
     .step.error {
       background: var(--error-soft);
-      border-color: #e6a7a7;
+      border-color: #e4a9a7;
     }
 
     .step.error .step-icon,
@@ -261,7 +262,7 @@
 
     .step.warn {
       background: var(--warn-soft);
-      border-color: #e5c979;
+      border-color: #e6cb82;
     }
 
     .step.warn .step-icon,
@@ -271,7 +272,7 @@
     }
 
     .alert-box {
-      background: #ebf1f6;
+      background: #f1ebe1;
       border-radius: var(--radius-m);
       color: var(--outline);
       font-size: 0.83rem;
@@ -286,19 +287,19 @@
 
     .alert-box.show-error {
       background: var(--error-soft);
-      color: #8e2020;
+      color: #902222;
     }
 
     .alert-box.show-warn {
       background: var(--warn-soft);
-      color: #7a5700;
+      color: #7b5700;
     }
 
     .pane-terminal {
       background: var(--terminal);
       color: var(--terminal-text);
       display: flex;
-      flex: 0.85;
+      flex: 0.86;
       flex-direction: column;
       font-family: Consolas, "Courier New", monospace;
       font-size: 0.82rem;
@@ -324,7 +325,7 @@
     }
 
     .lt {
-      color: #5d6670;
+      color: #6e6558;
       margin-right: 8px;
     }
 
@@ -333,7 +334,6 @@
     .ls { color: var(--terminal-success); font-weight: 600; }
     .le { color: var(--terminal-error); font-weight: 600; }
     .lw { color: var(--terminal-warn); font-weight: 600; }
-    .lp { color: var(--terminal-prompt); font-style: italic; }
 
     @media (max-width: 1100px) {
       .main {
@@ -352,36 +352,37 @@
 </head>
 <body>
   <header>
-    <h1>BBPS Reconciliation - Zero-Trust Agent</h1>
-    <span class="subhead">Mask, Brain, Executioner</span>
+    <h1>Enterprise SaaS TDS Reconciliation</h1>
+    <span class="subhead">Tolerance Bands and Forward Offsetting</span>
   </header>
 
   <div class="main">
     <div class="pane pane-ui">
       <div class="controls">
-        <button class="active-btn" data-scenario="sync_clear">Realtime Settle</button>
-        <button data-scenario="batch_match">Hold Then Settle</button>
-        <button data-scenario="batch_refund">Hold Then Refund</button>
-        <button data-scenario="low_confidence">Low Confidence</button>
+        <button class="active-btn" data-scenario="full_payment">Full Pay</button>
+        <button data-scenario="tds_10">TDS 10%</button>
+        <button data-scenario="tds_2">TDS 2%</button>
+        <button data-scenario="tds_missing_certificate">Missing Proof</button>
+        <button data-scenario="invalid_short_pay">Off-Band</button>
         <button class="reset-btn" id="reset-btn">Reset</button>
       </div>
 
       <div class="metrics">
         <div class="metric-card">
-          <div class="metric-label">Brain Output</div>
-          <div class="metric-value" id="metric-decision">Pending</div>
+          <div class="metric-label">Received</div>
+          <div class="metric-value" id="metric-received">Rs 0</div>
         </div>
         <div class="metric-card">
-          <div class="metric-label">Confidence</div>
-          <div class="metric-value" id="metric-confidence">--</div>
+          <div class="metric-label">Invoice State</div>
+          <div class="metric-value" id="metric-status">UNPAID</div>
         </div>
         <div class="metric-card">
-          <div class="metric-label">Barrier</div>
-          <div class="metric-value" id="metric-barrier">Idle</div>
+          <div class="metric-label">Access</div>
+          <div class="metric-value" id="metric-access">PENDING</div>
         </div>
         <div class="metric-card">
-          <div class="metric-label">Outcome</div>
-          <div class="metric-value" id="metric-outcome">Pending</div>
+          <div class="metric-label">Next Invoice</div>
+          <div class="metric-value" id="metric-next">Rs 50,000</div>
         </div>
       </div>
 
@@ -389,89 +390,73 @@
         <div class="step" id="s1">
           <div class="step-icon">01</div>
           <div class="step-content">
-            <div class="step-title">NPCI Payment Intake</div>
-            <div class="step-sub">Suspense ledger opens while biller verification is incomplete.</div>
+            <div class="step-title">Invoice Issued</div>
+            <div class="step-sub">The billing engine creates the enterprise invoice and wires the collection rails.</div>
           </div>
           <div class="step-badge" id="b1">Waiting</div>
         </div>
         <div class="step" id="s2">
           <div class="step-icon">02</div>
           <div class="step-content">
-            <div class="step-title">Mask Layer</div>
-            <div class="step-sub">DPDP tokenization strips identity before any AI call.</div>
+            <div class="step-title">Webhook Credit</div>
+            <div class="step-sub">The virtual account receives the wire and posts the raw amount.</div>
           </div>
           <div class="step-badge" id="b2">Waiting</div>
         </div>
         <div class="step" id="s3">
           <div class="step-icon">03</div>
           <div class="step-content">
-            <div class="step-title">Realtime Biller API</div>
-            <div class="step-sub">Attempt the legacy verification endpoint first.</div>
+            <div class="step-title">Tolerance Gate</div>
+            <div class="step-sub">The executioner checks for exact payment or supported statutory TDS bands.</div>
           </div>
           <div class="step-badge" id="b3">Waiting</div>
         </div>
         <div class="step" id="s4">
           <div class="step-icon">04</div>
           <div class="step-content">
-            <div class="step-title">Brain Proposal</div>
-            <div class="step-sub">The AI layer returns JSON, not side effects.</div>
+            <div class="step-title">Access Decision</div>
+            <div class="step-sub">Either keep the software live, close the invoice, or send the case to review.</div>
           </div>
           <div class="step-badge" id="b4">Waiting</div>
         </div>
         <div class="step" id="s5">
           <div class="step-icon">05</div>
           <div class="step-content">
-            <div class="step-title">Executioner Gate</div>
-            <div class="step-sub">Thresholds and biller capability rules decide whether money can move.</div>
+            <div class="step-title">Quarter-End Sweep</div>
+            <div class="step-sub">Government proof either validates the receivable or converts it into arrears.</div>
           </div>
           <div class="step-badge" id="b5">Waiting</div>
         </div>
-        <div class="step" id="s6" style="display:none">
+        <div class="step" id="s6">
           <div class="step-icon">06</div>
           <div class="step-content">
-            <div class="step-title">Batch Hold Window</div>
-            <div class="step-sub">Funds remain in suspense until the overnight file-drop cutoff.</div>
+            <div class="step-title">Final Ledger State</div>
+            <div class="step-sub">The invoice closes, rolls into arrears, or lands in an exception queue.</div>
           </div>
-          <div class="step-badge" id="b6">Hidden</div>
-        </div>
-        <div class="step" id="s7" style="display:none">
-          <div class="step-icon">07</div>
-          <div class="step-content">
-            <div class="step-title">SFTP Batch Ingest</div>
-            <div class="step-sub">Masked batch rows are parsed to find offline proof.</div>
-          </div>
-          <div class="step-badge" id="b7">Hidden</div>
-        </div>
-        <div class="step" id="s8" style="display:none">
-          <div class="step-icon">08</div>
-          <div class="step-content">
-            <div class="step-title">Final Ledger Verdict</div>
-            <div class="step-sub">The second Brain pass produces the final settle or refund action.</div>
-          </div>
-          <div class="step-badge" id="b8">Hidden</div>
+          <div class="step-badge" id="b6">Waiting</div>
         </div>
       </div>
 
-      <div class="alert-box" id="alert">Select a scenario to replay the decision path.</div>
+      <div class="alert-box" id="alert">Select a scenario to replay how the TDS tolerance logic protects uptime.</div>
     </div>
 
     <div class="pane pane-terminal" id="terminal">
-      <div class="term-hdr">Biller Ops Unit - Agent Log</div>
+      <div class="term-hdr">CloudMatrix Billing - Ledger Log</div>
     </div>
   </div>
 
   <script src="./mock_api.js"></script>
   <script>
-    const app = window.FinTechHubCase03;
+    const app = window.FinTechHubCase05;
     const scenarioButtons = Array.from(document.querySelectorAll("[data-scenario]"));
     const resetButton = document.getElementById("reset-btn");
     const terminal = document.getElementById("terminal");
     const alertBox = document.getElementById("alert");
-    const metricDecision = document.getElementById("metric-decision");
-    const metricConfidence = document.getElementById("metric-confidence");
-    const metricBarrier = document.getElementById("metric-barrier");
-    const metricOutcome = document.getElementById("metric-outcome");
     let activeRunToken = 0;
+
+    function formatMoney(value) {
+      return "Rs " + Number(value).toLocaleString("en-IN");
+    }
 
     function renderLog(event) {
       if (!event.message) {
@@ -486,7 +471,6 @@
         success: "ls",
         error: "le",
         warn: "lw",
-        prompt: "lp",
       };
       line.className = "log-line";
       line.innerHTML =
@@ -517,47 +501,26 @@
       if (!stepId) {
         return;
       }
-
       const step = document.getElementById(stepId);
       const badge = document.getElementById("b" + stepId.slice(1));
       if (!step || !badge) {
         return;
       }
-
       step.className = "step " + stepState;
       badge.textContent = badgeText || badge.textContent;
     }
 
-    function revealSteps(stepIds) {
-      (stepIds || []).forEach(function (stepId) {
-        const step = document.getElementById(stepId);
-        const badge = document.getElementById("b" + stepId.slice(1));
-        if (step) {
-          step.style.display = "flex";
-        }
-        if (badge && badge.textContent === "Hidden") {
-          badge.textContent = "Pending";
-        }
-      });
-      const timeline = document.getElementById("timeline");
-      timeline.scrollTop = timeline.scrollHeight;
-    }
-
     function updateMetrics(snapshot) {
-      metricDecision.textContent = snapshot.proposedAction || "Pending";
-      metricConfidence.textContent =
-        typeof snapshot.confidenceScore === "number"
-          ? snapshot.confidenceScore.toFixed(2)
-          : "--";
-      metricBarrier.textContent = snapshot.barrierState || "Idle";
-      metricOutcome.textContent = snapshot.outcomeStatus || "Pending";
+      document.getElementById("metric-received").textContent = formatMoney(snapshot.receivedAmount);
+      document.getElementById("metric-status").textContent = snapshot.invoiceStatus;
+      document.getElementById("metric-access").textContent = snapshot.accessState;
+      document.getElementById("metric-next").textContent = formatMoney(snapshot.nextInvoiceAmount);
     }
 
     function applyAlert(alert) {
       if (!alert) {
         return;
       }
-
       alertBox.className = "alert-box";
       if (alert.tone === "success") {
         alertBox.classList.add("show-success");
@@ -574,21 +537,16 @@
     function resetView() {
       activeRunToken += 1;
       setButtonsDisabled(false);
-      terminal.innerHTML = '<div class="term-hdr">Biller Ops Unit - Agent Log</div>';
+      terminal.innerHTML = '<div class="term-hdr">CloudMatrix Billing - Ledger Log</div>';
       alertBox.className = "alert-box";
-      alertBox.textContent = "Select a scenario to replay the decision path.";
+      alertBox.textContent = "Select a scenario to replay how the TDS tolerance logic protects uptime.";
       updateMetrics(app.resetState());
 
-      for (let index = 1; index <= 8; index += 1) {
+      for (let index = 1; index <= 6; index += 1) {
         const step = document.getElementById("s" + index);
         const badge = document.getElementById("b" + index);
         step.className = "step";
-        if (index >= 6) {
-          step.style.display = "none";
-          badge.textContent = "Hidden";
-        } else {
-          badge.textContent = "Waiting";
-        }
+        badge.textContent = "Waiting";
       }
     }
 
@@ -603,7 +561,7 @@
 
       try {
         await app.runScenario(scenarioId, {
-          sleepMs: 420,
+          sleepMs: 400,
           log: function (event) {
             if (runToken !== activeRunToken) {
               return;
@@ -613,9 +571,6 @@
           onEvent: function (event) {
             if (runToken !== activeRunToken) {
               return;
-            }
-            if (event.revealStepIds) {
-              revealSteps(event.revealStepIds);
             }
             if (event.stepId && event.stepState) {
               setStepState(event.stepId, event.stepState, event.badgeText);
