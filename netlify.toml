@@ -1,0 +1,15 @@
+[build]
+  # The directory where Netlify will run the build command
+  base = "portal"
+  # The command to build the project
+  command = "npm run build"
+  # The directory that Netlify will serve (relative to the base)
+  publish = "out"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
