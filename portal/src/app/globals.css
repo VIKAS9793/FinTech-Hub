@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #E2E8F0;
+  
+  --color-primary: #A855F7;
+  --color-primary-dark: #6B21A8;
+  --color-accent: #C084FC;
+  --color-success: #10B981;
+  --color-border: rgba(255, 255, 255, 0.03);
+  --color-glass: rgba(30, 27, 75, 0.3);
+
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-outfit);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(30, 27, 75, 0.4);
+    backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-card {
+    background: linear-gradient(
+      135deg,
+      rgba(30, 27, 75, 0.6) 0%,
+      rgba(15, 23, 42, 0.3) 100%
+    );
+    backdrop-filter: blur(40px);
+    border: 1px solid rgba(168, 85, 247, 0.1);
+    box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.7);
+  }
+
+  .text-gradient {
+    background: linear-gradient(to right, #FFFFFF, #A855F7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .grid-bg {
+    background-image: 
+      linear-gradient(to right, rgba(168, 85, 247, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(168, 85, 247, 0.03) 1px, transparent 1px);
+    background-size: 100px 100px;
+    mask-image: radial-gradient(circle at center, black, transparent 70%);
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+}
