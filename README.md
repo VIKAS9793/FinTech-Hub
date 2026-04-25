@@ -8,6 +8,13 @@
   <a href="https://github.com/VIKAS9793"><img src="https://img.shields.io/badge/GitHub-VIKAS9793-181717?style=for-the-badge&logo=github" /></a>
   <a href="mailto:vikassahani17@gmail.com"><img src="https://img.shields.io/badge/Email-vikassahani17@gmail.com-EA4335?style=for-the-badge&logo=gmail" /></a>
   <br><br>
+
+  <a href="https://fintech-hub-case.netlify.app/">
+    <img src="https://img.shields.io/badge/VIEW_LIVE_PORTAL-EXPLORE_INTERACTIVE_SIMULATIONS-7C3AED?style=for-the-badge&logo=react&logoColor=white" height="40"/>
+  </a>
+  <br>
+  <code><b>https://fintech-hub-case.netlify.app/</b></code>
+  <br><br>
 </div>
 
 ![Static Badge](https://img.shields.io/badge/Status-Project_Hub-blue?style=for-the-badge)
